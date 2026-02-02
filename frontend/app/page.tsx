@@ -115,9 +115,8 @@ export default function Home() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, []);
 
-  const handleClaim = () => {
-    router.push('/upload');
-  };
+  const handleClaim = () => router.push('/upload');
+  const triggerTribute = () => router.push('/checkout?source=tribute');
 
   const handleLike = () => {
     setLikes(prev => prev + 1); setIsHeartBeating(true);
@@ -125,10 +124,6 @@ export default function Home() {
     const newEntry = { id: Date.now(), text: `Imperial Allegiance Sworn: ${userCountry}`, isNew: true };
     setActivities(prev => [...prev.slice(-9), newEntry]);
     if ((window as any).createFirework) { (window as any).createFirework(window.innerWidth * 0.15, window.innerHeight * 0.7); }
-  };
-
-  const triggerTribute = () => {
-    router.push('/checkout?source=tribute');
   };
 
   return (
@@ -142,10 +137,10 @@ export default function Home() {
       </div>
 
       <header className="absolute top-10 left-10 z-20 flex flex-col items-start">
-        <h1 className="text-4xl md:text-5xl font-serif font-black italic tracking-[0.3em] bg-clip-text text-transparent" style={{ backgroundImage: imperialGold }}>NGC</h1>
+        <h1 className="text-4xl md:text-5xl font-black italic tracking-[0.3em] bg-clip-text text-transparent" style={{ backgroundImage: imperialGold }}>NGC</h1>
         <div className="flex items-center mt-2 space-x-3 opacity-90">
            <div className="h-[1px] w-6" style={{ backgroundImage: `linear-gradient(to right, #b38f4a, transparent)` }}></div>
-           <p className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase font-medium" style={{ color: '#b38f4a' }}>The Sovereign Asset</p>
+           <p className="text-[10px] tracking-[0.4em] uppercase font-medium" style={{ color: '#b38f4a' }}>The Sovereign Asset</p>
         </div>
       </header>
 
@@ -195,7 +190,7 @@ export default function Home() {
                    </div>
                 </div>
              </div>
-             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-none">
+             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-auto">
                 <div className="flex flex-col text-left absolute left-0 top-0">
                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b38f4a] font-bold">Endorse the</span>
                    <span className="text-[12px] uppercase tracking-[0.3em] text-white font-black leading-none">Imperial Asset</span>
@@ -277,8 +272,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- השלישייה בימין התחתון בלבד --- */}
-      <div className="absolute bottom-10 right-10 flex items-center gap-10 z-20">
+      {/* --- השלישייה בצד שמאל בתחתית העמוד כפי שביקשת --- */}
+      <div className="absolute bottom-10 left-10 flex items-center gap-10 z-20">
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
