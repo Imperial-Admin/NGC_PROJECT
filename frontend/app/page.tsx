@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-
+import { useRouter } from 'next/navigation';
 export default function Home() {
+  const router = useRouter();
   const [buyers, setBuyers] = useState(0);
   const [likes, setLikes] = useState(756567);
   const [userCountry, setUserCountry] = useState("Monaco");
@@ -114,21 +115,7 @@ export default function Home() {
   }, []);
 
   const handleClaim = () => {
-    setIsCoronating(true);
-    const audio = new Audio('/victory.mp3'); audio.volume = 1.0; audio.play().catch(() => {});
-    setTimeout(() => {
-      setIsShaking(true); setBuyers(prev => prev + 1);
-      if ((window as any).createFirework) {
-         const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2.5;
-         for (let i = 0; i < 15; i++) {
-            const offsetX = (Math.random() - 0.5) * 300;
-            const offsetY = (Math.random() - 0.5) * 200;
-            (window as any).createFirework(centerX + offsetX, centerY + offsetY);
-         }
-      }
-      setTimeout(() => setIsShaking(false), 1000);
-    }, 5000);
-    setTimeout(() => setIsCoronating(false), 8000);
+    router.push('/upload'); 
   };
 
   const handleLike = () => {
