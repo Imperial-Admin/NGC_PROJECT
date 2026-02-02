@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { Shield, Activity, TrendingUp, Globe, Heart } from 'lucide-react';
+import { Shield, Globe, Heart, Activity } from 'lucide-react';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,6 +15,7 @@ export default function Home() {
   const [likes, setLikes] = useState(756567);
   const [isHeartBeating, setIsHeartBeating] = useState(false);
 
+  // טעינת נתוני הטבלה
   useEffect(() => {
     const fetchLedgers = async () => {
       const { data } = await supabase.from('tribute_ledger').select('*').order('amount', { ascending: false });
@@ -27,11 +28,11 @@ export default function Home() {
 
   return (
     <main className="h-screen w-full bg-black text-white font-serif overflow-hidden relative select-none">
-      {/* רקע ותפאורה */}
+      {/* רקע ותפאורה קיסרית */}
       <div className="absolute inset-0 bg-[url('/bg.jpg')] bg-cover opacity-30 brightness-[0.3]"></div>
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black"></div>
 
-      {/* Header */}
+      {/* לוגו וסטטוס Live */}
       <header className="absolute top-0 left-0 w-full p-8 z-50 flex justify-between items-start">
         <div className="space-y-1">
           <h1 className="text-4xl font-black tracking-tighter italic" style={{ background: imperialGold, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>NGC</h1>
@@ -47,10 +48,10 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Dashboard Grid */}
+      {/* המבנה המרכזי של ה-Dashboard */}
       <div className="relative h-full w-full grid grid-cols-12 gap-4 p-8 pt-32 z-10">
         
-        {/* Left Sidebar: Global Pulse */}
+        {/* לוח שמאל: Global Pulse */}
         <aside className="col-span-3 space-y-4 h-full">
           <div className="bg-black/60 border border-[#b38f4a]/20 backdrop-blur-md p-6 h-full flex flex-col">
             <div className="flex items-center gap-3 mb-8 border-b border-[#b38f4a]/10 pb-4">
@@ -79,7 +80,7 @@ export default function Home() {
           </div>
         </aside>
 
-        {/* Center: The Sovereign Frame */}
+        {/* מרכז: תמונת הריבון והכפתורים */}
         <section className="col-span-6 flex flex-col items-center justify-center space-y-8">
             <div className="relative w-full max-w-2xl aspect-[4/5] rounded-lg p-1 shadow-2xl" style={{ backgroundImage: imperialGold }}>
                 <div className="h-full w-full bg-black rounded-md overflow-hidden relative group">
@@ -88,8 +89,8 @@ export default function Home() {
                     
                     <div className="absolute bottom-0 left-0 right-0 p-10 text-center space-y-6">
                         <div className="space-y-1">
-                            <h2 className="text-[10px] tracking-[0.6em] uppercase text-[#b38f4a]">The Current Sovereign</h2>
-                            <p className="text-sm tracking-[0.4em] uppercase font-black text-white">Alexander Von Berg</p>
+                            <h2 className="text-[10px] tracking-[0.6em] uppercase text-[#b38f4a]">To Take The Throne,</h2>
+                            <p className="text-[9px] tracking-[0.4em] uppercase font-light text-white opacity-80">Outvalue the current sovereign by 10%</p>
                         </div>
                         <button 
                             onClick={() => router.push('/upload')}
@@ -99,13 +100,12 @@ export default function Home() {
                         </button>
                     </div>
                     
-                    {/* תגית מחיר צפה */}
-                    <div className="absolute bottom-12 right-0 w-24 h-10 flex items-center justify-center" style={{ backgroundImage: imperialGold }}>
+                    <div className="absolute bottom-12 right-0 w-24 h-10 flex items-center justify-center shadow-2xl" style={{ backgroundImage: imperialGold }}>
                         <span className="text-[#1a1103] font-black text-lg tracking-tighter">$10</span>
                     </div>
                 </div>
             </div>
-            {/* כפתור ה-Tribute המרכזי */}
+            
             <button 
                 onClick={() => router.push('/checkout?source=tribute')}
                 className="w-full max-w-sm py-5 text-[#1a1103] font-black uppercase tracking-[0.6em] text-[10px] shadow-2xl active:scale-95 transition-all" 
@@ -115,7 +115,7 @@ export default function Home() {
             </button>
         </section>
 
-        {/* Right Sidebar: Tribute Ledger */}
+        {/* לוח ימין: Tribute Ledger */}
         <aside className="col-span-3 space-y-4 h-full">
           <div className="bg-black/60 border border-[#b38f4a]/20 backdrop-blur-md p-6 h-full flex flex-col overflow-hidden">
             <div className="flex items-center gap-3 mb-8 border-b border-[#b38f4a]/10 pb-4">
@@ -139,12 +139,12 @@ export default function Home() {
         </aside>
       </div>
 
-      {/* Bottom Ticker */}
+      {/* טיקר (Ticker) תחתון */}
       <footer className="absolute bottom-0 left-0 w-full h-12 border-t border-[#b38f4a]/10 bg-black flex items-center overflow-hidden">
         <div className="flex whitespace-nowrap animate-marquee">
             {[...Array(10)].map((_, i) => (
                 <span key={i} className="mx-12 text-[8px] tracking-[0.5em] uppercase text-[#b38f4a]/40 font-bold">
-                    Success is a choice. Sovereignty is a destiny.
+                    Success is a choice. Sovereignty is a destiny. — Your legacy awaits until a greater tribute is paid.
                 </span>
             ))}
         </div>
