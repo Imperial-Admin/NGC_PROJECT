@@ -11,6 +11,7 @@ export default function Home() {
   const [isHeartBeating, setIsHeartBeating] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
   
+  // לוגיקת צופים ריאליסטית
   const MIN_VIEWERS = 123452; 
   const TARGET_BASE = 124500; 
   const [onlineViewers, setOnlineViewers] = useState(TARGET_BASE); 
@@ -85,7 +86,8 @@ export default function Home() {
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     window.addEventListener('resize', resize); resize();
     class Particle {
-      x: number; y: number; vx: number; vy: number; alpha: number; color: string; gravity: number; friction: number; size: number; decay: number;
+      x: number; y: number; vx: number; vy: number; alpha: number; color: string; 
+      gravity: number; friction: number; size: number; decay: number;
       constructor(x: number, y: number, color: string) {
         this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 10 + 5;
         this.vx = Math.cos(angle) * velocity; this.vy = Math.sin(angle) * velocity;
@@ -113,8 +115,21 @@ export default function Home() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, []);
 
-  const handleClaim = () => router.push('/upload');
-  const triggerTribute = () => router.push('/checkout?source=tribute');
+  const handleClaim = () => {
+    router.push('/upload');
+  };
+
+  const handleLike = () => {
+    setLikes(prev => prev + 1); setIsHeartBeating(true);
+    setTimeout(() => setIsHeartBeating(false), 600);
+    const newEntry = { id: Date.now(), text: `Imperial Allegiance Sworn: ${userCountry}`, isNew: true };
+    setActivities(prev => [...prev.slice(-9), newEntry]);
+    if ((window as any).createFirework) { (window as any).createFirework(window.innerWidth * 0.15, window.innerHeight * 0.7); }
+  };
+
+  const triggerTribute = () => {
+    router.push('/checkout?source=tribute');
+  };
 
   return (
     <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-start overflow-hidden font-serif relative select-none caret-transparent outline-none transition-transform duration-100 ${isShaking ? 'animate-screen-shake' : ''}`}>
@@ -180,12 +195,12 @@ export default function Home() {
                    </div>
                 </div>
              </div>
-             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-auto">
+             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-none">
                 <div className="flex flex-col text-left absolute left-0 top-0">
                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b38f4a] font-bold">Endorse the</span>
                    <span className="text-[12px] uppercase tracking-[0.3em] text-white font-black leading-none">Imperial Asset</span>
                 </div>
-                <button onClick={() => { setLikes(prev => prev + 1); setIsHeartBeating(true); setTimeout(() => setIsHeartBeating(false), 600); }} className={`absolute right-0 top-0 transform transition-transform duration-300 active:scale-90 outline-none ${isHeartBeating ? 'scale-125' : 'hover:scale-110'}`}>
+                <button onClick={handleLike} className={`absolute right-0 top-0 transform pointer-events-auto transition-transform duration-300 active:scale-90 outline-none ${isHeartBeating ? 'scale-125' : 'hover:scale-110'}`}>
                    <span className="text-4xl drop-shadow-[0_0_15px_rgba(255,0,0,0.6)]" style={{ color: '#FF0000' }}>❤</span>
                 </button>
              </div>
@@ -262,7 +277,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- השלישייה בימין התחתון: SHARE / LIVE STREAM / HISTORY --- */}
+      {/* --- השלישייה בימין התחתון בלבד --- */}
       <div className="absolute bottom-10 right-10 flex items-center gap-10 z-20">
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
