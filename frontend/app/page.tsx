@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
+import { Shield, Activity, TrendingUp, Globe, Heart } from 'lucide-react';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,17 +12,12 @@ const supabase = createClient(
 export default function Home() {
   const router = useRouter();
   const [ledgers, setLedgers] = useState<any[]>([]);
-  const [likes, setLikes] = useState(0);
+  const [likes, setLikes] = useState(756567);
   const [isHeartBeating, setIsHeartBeating] = useState(false);
-  const [activities, setActivities] = useState<any[]>([]);
 
-  // טעינת הטבלה מה-Database
   useEffect(() => {
     const fetchLedgers = async () => {
-      const { data } = await supabase
-        .from('tribute_ledger')
-        .select('*')
-        .order('amount', { ascending: false });
+      const { data } = await supabase.from('tribute_ledger').select('*').order('amount', { ascending: false });
       if (data) setLedgers(data);
     };
     fetchLedgers();
@@ -29,110 +25,138 @@ export default function Home() {
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
-  // פונקציית העלאת תמונה
-  const handleClaim = () => {
-    router.push('/upload');
-  };
-
-  // פונקציית הלייק (הלב הפועם)
-  const handleLike = () => {
-    setLikes(prev => prev + 1);
-    setIsHeartBeating(true);
-    setTimeout(() => setIsHeartBeating(false), 600);
-    const newEntry = { id: Date.now(), text: `Imperial Allegiance Sworn` };
-    setActivities(prev => [...prev.slice(-9), newEntry]);
-    if ((window as any).createFirework) {
-      (window as any).createFirework(window.innerWidth / 2, window.innerHeight / 2);
-    }
-  };
-
-  // --- הפונקציה המעודכנת: שולחת לדף התשלום עם תיוג tribute ---
-  const triggerTribute = () => {
-    router.push('/checkout?source=tribute');
-  };
-
   return (
-    <main className="min-h-screen bg-black text-white font-serif selection:bg-[#b38f4a]/30 overflow-x-hidden">
-      {/* Hero Section */}
-      <section className="relative h-screen flex flex-col items-center justify-center">
-        <div className="absolute inset-0 bg-[url('/bg.jpg')] bg-cover bg-center opacity-20"></div>
-        
-        <div className="relative z-10 text-center space-y-12 max-w-5xl px-6">
-          <div className="space-y-4">
-            <h1 className="text-8xl md:text-[12rem] font-black tracking-tighter italic animate-pulse" style={{ background: imperialGold, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              NGC
-            </h1>
-            <p className="text-[10px] tracking-[1em] uppercase text-[#b38f4a] font-light">The Sovereign Digital Asset</p>
+    <main className="h-screen w-full bg-black text-white font-serif overflow-hidden relative select-none">
+      {/* רקע ותפאורה */}
+      <div className="absolute inset-0 bg-[url('/bg.jpg')] bg-cover opacity-30 brightness-[0.3]"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black"></div>
+
+      {/* Header */}
+      <header className="absolute top-0 left-0 w-full p-8 z-50 flex justify-between items-start">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black tracking-tighter italic" style={{ background: imperialGold, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>NGC</h1>
+          <p className="text-[7px] tracking-[0.6em] uppercase text-[#b38f4a] opacity-80">— THE SOVEREIGN ASSET —</p>
+        </div>
+        <div className="text-right">
+          <div className="flex items-center gap-2 text-red-500 animate-pulse">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+            <span className="text-[8px] tracking-[0.3em] font-bold uppercase">Live</span>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-2xl mx-auto">
-            <button 
-              onClick={handleClaim}
-              className="group relative py-6 border border-[#b38f4a]/30 text-[#b38f4a] uppercase tracking-[0.5em] text-[10px] font-bold hover:bg-[#b38f4a]/10 transition-all overflow-hidden"
-            >
-              <span className="relative z-10">Claim The Throne</span>
-              <div className="absolute inset-0 bg-[#b38f4a]/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-            </button>
-
-            <button 
-              onClick={triggerTribute}
-              className="py-6 text-[#1a1103] font-black uppercase tracking-[0.5em] text-[10px] shadow-[0_20px_50px_-15px_rgba(179,143,74,0.5)] active:scale-95 transition-all hover:brightness-110" 
-              style={{ backgroundImage: imperialGold }}
-            >
-              Pay Tribute - $10
-            </button>
-          </div>
+          <p className="text-2xl font-light tracking-tighter mt-1">124,500</p>
+          <p className="text-[7px] tracking-[0.2em] uppercase text-gray-500">Live Global Presence</p>
         </div>
+      </header>
 
-        {/* Heartbeat Logic */}
-        <div className="absolute bottom-12 flex flex-col items-center gap-4 animate-bounce">
-            <button onClick={handleLike} className={`text-3xl transition-transform duration-300 ${isHeartBeating ? 'scale-150 text-red-600' : 'text-[#b38f4a] hover:scale-110'}`}>
-                {isHeartBeating ? '❤️' : '🤍'}
-            </button>
-            <span className="text-[10px] tracking-[0.4em] uppercase text-[#b38f4a]/60 font-bold">{likes.toLocaleString()} Allegiances</span>
-        </div>
-      </section>
-
-      {/* Table Section */}
-      <section className="max-w-6xl mx-auto py-40 px-6">
-        <div className="flex flex-col items-center mb-20 space-y-4">
-            <Shield className="w-8 h-8 text-[#b38f4a] opacity-50" />
-            <h2 className="text-[10px] tracking-[0.8em] uppercase text-[#b38f4a] italic">The Imperial Ledger</h2>
-        </div>
+      {/* Main Dashboard Grid */}
+      <div className="relative h-full w-full grid grid-cols-12 gap-4 p-8 pt-32 z-10">
         
-        <div className="border border-[#b38f4a]/20 bg-white/[0.02] backdrop-blur-md shadow-2xl">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-[#b38f4a]/20 text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50">
-                <th className="p-10 font-light">Ranked Sovereign</th>
-                <th className="p-10 text-right font-light">Tribute</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ledgers.map((entry, i) => (
-                <tr key={i} className="border-b border-[#b38f4a]/10 group hover:bg-[#b38f4a]/5 transition-all">
-                  <td className="p-10">
-                    <div className="flex items-center gap-6">
-                        <span className="text-[10px] text-[#b38f4a]/40 font-mono">0{i+1}</span>
-                        <span className="text-sm tracking-[0.2em] font-bold uppercase group-hover:text-[#FBF5B7] transition-colors">{entry.name}</span>
+        {/* Left Sidebar: Global Pulse */}
+        <aside className="col-span-3 space-y-4 h-full">
+          <div className="bg-black/60 border border-[#b38f4a]/20 backdrop-blur-md p-6 h-full flex flex-col">
+            <div className="flex items-center gap-3 mb-8 border-b border-[#b38f4a]/10 pb-4">
+              <Globe className="w-4 h-4 text-[#b38f4a]" />
+              <h2 className="text-[9px] tracking-[0.4em] uppercase font-bold text-[#f1e4d1]">Global Pulse</h2>
+            </div>
+            <div className="space-y-10 flex-1">
+              <div className="space-y-2">
+                <p className="text-3xl font-light tracking-tighter">{likes.toLocaleString()}</p>
+                <p className="text-[7px] tracking-[0.3em] uppercase text-[#b38f4a]/60">Sovereign Allegiances Detected</p>
+              </div>
+              <div className="space-y-6 opacity-40 text-[8px] tracking-[0.2em] uppercase leading-relaxed italic">
+                <p>"Legacy sequence detected: Zurich"</p>
+                <p>"Imperial Tier validation active"</p>
+                <p>"Global sovereignty protocol initiated"</p>
+              </div>
+            </div>
+            <div className="mt-auto pt-6 flex items-center gap-4">
+              <Heart 
+                onClick={() => { setLikes(prev => prev + 1); setIsHeartBeating(true); setTimeout(() => setIsHeartBeating(false), 300); }}
+                className={`w-6 h-6 cursor-pointer transition-all ${isHeartBeating ? 'scale-125 text-red-600' : 'text-[#b38f4a] hover:scale-110'}`} 
+                fill={isHeartBeating ? 'currentColor' : 'none'}
+              />
+              <span className="text-[8px] tracking-[0.3em] uppercase text-white/40">Affirm Allegiance</span>
+            </div>
+          </div>
+        </aside>
+
+        {/* Center: The Sovereign Frame */}
+        <section className="col-span-6 flex flex-col items-center justify-center space-y-8">
+            <div className="relative w-full max-w-2xl aspect-[4/5] rounded-lg p-1 shadow-2xl" style={{ backgroundImage: imperialGold }}>
+                <div className="h-full w-full bg-black rounded-md overflow-hidden relative group">
+                    <img src="/sovereign.jpg" alt="The Sovereign" className="w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-10 text-center space-y-6">
+                        <div className="space-y-1">
+                            <h2 className="text-[10px] tracking-[0.6em] uppercase text-[#b38f4a]">The Current Sovereign</h2>
+                            <p className="text-sm tracking-[0.4em] uppercase font-black text-white">Alexander Von Berg</p>
+                        </div>
+                        <button 
+                            onClick={() => router.push('/upload')}
+                            className="px-12 py-4 bg-transparent border border-[#b38f4a]/40 text-[#b38f4a] text-[9px] tracking-[0.5em] uppercase font-bold hover:bg-[#b38f4a] hover:text-[#1a1103] transition-all"
+                        >
+                            Claim The Throne
+                        </button>
                     </div>
-                  </td>
-                  <td className="p-10 text-right font-mono text-[#b38f4a] text-lg">${entry.amount.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  );
-}
+                    
+                    {/* תגית מחיר צפה */}
+                    <div className="absolute bottom-12 right-0 w-24 h-10 flex items-center justify-center" style={{ backgroundImage: imperialGold }}>
+                        <span className="text-[#1a1103] font-black text-lg tracking-tighter">$10</span>
+                    </div>
+                </div>
+            </div>
+            {/* כפתור ה-Tribute המרכזי */}
+            <button 
+                onClick={() => router.push('/checkout?source=tribute')}
+                className="w-full max-w-sm py-5 text-[#1a1103] font-black uppercase tracking-[0.6em] text-[10px] shadow-2xl active:scale-95 transition-all" 
+                style={{ backgroundImage: imperialGold }}
+            >
+                Pay Tribute - $10
+            </button>
+        </section>
 
-// פונקציית עזר לאייקון (למקרה שאינו מיובא)
-function Shield({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-    </svg>
+        {/* Right Sidebar: Tribute Ledger */}
+        <aside className="col-span-3 space-y-4 h-full">
+          <div className="bg-black/60 border border-[#b38f4a]/20 backdrop-blur-md p-6 h-full flex flex-col overflow-hidden">
+            <div className="flex items-center gap-3 mb-8 border-b border-[#b38f4a]/10 pb-4">
+              <Shield className="w-4 h-4 text-[#b38f4a]" />
+              <h2 className="text-[9px] tracking-[0.4em] uppercase font-bold text-[#f1e4d1]">Tribute Ledger</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+              <div className="space-y-6">
+                {ledgers.map((entry, i) => (
+                  <div key={i} className="flex justify-between items-end border-b border-[#b38f4a]/5 pb-3">
+                    <div className="space-y-1">
+                      <p className="text-[8px] text-[#b38f4a]/40 font-mono">RANK 0{i+1}</p>
+                      <p className="text-[11px] tracking-[0.2em] font-bold uppercase">{entry.name}</p>
+                    </div>
+                    <p className="text-[#b38f4a] text-xs font-mono">${entry.amount.toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* Bottom Ticker */}
+      <footer className="absolute bottom-0 left-0 w-full h-12 border-t border-[#b38f4a]/10 bg-black flex items-center overflow-hidden">
+        <div className="flex whitespace-nowrap animate-marquee">
+            {[...Array(10)].map((_, i) => (
+                <span key={i} className="mx-12 text-[8px] tracking-[0.5em] uppercase text-[#b38f4a]/40 font-bold">
+                    Success is a choice. Sovereignty is a destiny.
+                </span>
+            ))}
+        </div>
+      </footer>
+
+      <style jsx>{`
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee { animation: marquee 30s linear infinite; }
+        .custom-scrollbar::-webkit-scrollbar { width: 2px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #b38f4a33; }
+      `}</style>
+    </main>
   );
 }
