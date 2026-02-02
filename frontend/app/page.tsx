@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Copy, Check, Globe, Share2 } from 'lucide-react';
+import { X, Copy, Check, Globe, Share2, MessageCircle, Send } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
@@ -167,7 +167,7 @@ export default function Home() {
             <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shadow-[0_0_12px_red]"></div>
             <span className="text-[10px] tracking-[0.4em] uppercase font-black text-white">Live</span>
          </div>
-         <p className="mt-2 text-lg md:text-xl font-mono font-black text-white tracking-tighter drop-shadow-[0_2px_8_rgba(0,0,0,1)] transition-all duration-1000 ease-in-out">
+         <p className="mt-2 text-lg md:text-xl font-mono font-black text-white tracking-tighter drop-shadow-[0_2px_8px_rgba(0,0,0,1)] transition-all duration-1000 ease-in-out">
             {onlineViewers.toLocaleString()}
          </p>
          <p className="text-[8px] uppercase tracking-[0.4em] text-[#b38f4a] font-bold opacity-80">LIVE GLOBAL AUDIENCE</p>
@@ -207,7 +207,7 @@ export default function Home() {
                    </div>
                 </div>
              </div>
-             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-none">
+             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-auto">
                 <div className="flex flex-col text-left absolute left-0 top-0">
                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b38f4a] font-bold">Endorse the</span>
                    <span className="text-[12px] uppercase tracking-[0.3em] text-white font-black leading-none">Imperial Asset</span>
@@ -294,39 +294,29 @@ export default function Home() {
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
-         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
+         <button onClick={() => router.push('/history')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
 
-      {/* --- חלונית השיתוף הקיסרית המשודרגת --- */}
       {isShareOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 transition-all duration-500">
            <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setIsShareOpen(false)}></div>
-           
            <div className="relative w-full max-w-lg bg-black border border-[#b38f4a]/30 p-12 shadow-[0_0_100px_rgba(0,0,0,1)] rounded-sm animate-in zoom-in-95 duration-500 overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-[1px]" style={{ background: `linear-gradient(to right, transparent, #b38f4a, transparent)` }}></div>
-              
               <button onClick={() => setIsShareOpen(false)} className="absolute top-6 right-6 text-white/20 hover:text-[#b38f4a] transition-colors"><X className="w-6 h-6" strokeWidth={1} /></button>
-              
               <div className="text-center space-y-10">
                  <div className="space-y-4">
                     <Share2 className="w-8 h-8 text-[#b38f4a] mx-auto opacity-50" strokeWidth={1} />
                     <h3 className="text-xl tracking-[0.6em] uppercase font-light text-white italic">Imperial Dispatch</h3>
                     <div className="h-[1px] w-12 bg-[#b38f4a]/30 mx-auto"></div>
                  </div>
-
-                 <div className="py-10 border-y border-[#b38f4a]/10">
-                    <p className="text-[10px] tracking-[0.4em] uppercase text-[#b38f4a]/60 leading-relaxed max-w-xs mx-auto">Propagate the digital sovereignty. Invite others to witness the ascension.</p>
+                 <div className="py-10 border-y border-[#b38f4a]/10 text-[10px] tracking-[0.4em] uppercase text-[#b38f4a]/60 italic font-medium max-w-xs mx-auto">Propagate the digital sovereignty. Invite others to witness the ascension.</div>
+                 <div className="flex justify-center gap-6 py-4">
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><MessageCircle className="w-6 h-6" /></button>
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><Send className="w-6 h-6" /></button>
                  </div>
-
-                 <div className="space-y-4">
-                    <button 
-                       onClick={copyToClipboard}
-                       className="w-full py-6 bg-transparent border border-[#b38f4a]/20 text-[#b38f4a] text-[10px] tracking-[0.6em] uppercase font-black hover:bg-[#b38f4a]/5 hover:border-[#b38f4a] transition-all flex items-center justify-center gap-4 group"
-                    >
-                       {copied ? <><Check className="w-4 h-4" /> Link Secured</> : <><Copy className="w-4 h-4 group-hover:scale-110 transition-transform" /> Copy Sovereign Link</>}
-                    </button>
-                    <p className="text-[7px] tracking-[0.3em] uppercase text-white/20 font-bold">Protocol v1.0 — Sovereign Network Access</p>
-                 </div>
+                 <button onClick={copyToClipboard} className="w-full py-6 bg-transparent border border-[#b38f4a]/20 text-[#b38f4a] text-[10px] tracking-[0.6em] uppercase font-black hover:bg-[#b38f4a]/5 hover:border-[#b38f4a] transition-all flex items-center justify-center gap-4 group">
+                    {copied ? <><Check className="w-4 h-4" /> Link Secured</> : <><Copy className="w-4 h-4 group-hover:scale-110 transition-transform" /> Copy Sovereign Link</>}
+                 </button>
               </div>
            </div>
         </div>
