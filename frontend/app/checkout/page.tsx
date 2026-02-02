@@ -12,7 +12,10 @@ export default function CheckoutPage() {
 
       <div className="relative z-10 w-full max-w-[600px]">
         {/* כפתור חזרה סימטרי בצד שמאל */}
-        <button onClick={() => router.back()} className="absolute -left-44 top-1/2 -translate-y-1/2 hidden xl:flex items-center text-[#f1e4d1] text-[10px] tracking-[0.5em] uppercase hover:text-[#b38f4a] transition-all font-black whitespace-nowrap">
+        <button 
+          onClick={() => router.back()} 
+          className="absolute -left-44 top-1/2 -translate-y-1/2 hidden xl:flex items-center text-[#f1e4d1] text-[10px] tracking-[0.5em] uppercase hover:text-[#b38f4a] transition-all font-black whitespace-nowrap"
+        >
           <ChevronLeft className="w-5 h-5 mr-2" strokeWidth={3} /> Return
         </button>
 

@@ -15,6 +15,7 @@ export default function ImperialUploadPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
+  // הגדרות State
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
   const [zoom, setZoom] = useState(1);
@@ -31,33 +32,35 @@ export default function ImperialUploadPage() {
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
-  // --- לוגיקת חזרה מהתשלום: כאן קורה הקסם האמיתי ---
+  // --- לוגיקת עיבוד לאחר תשלום ---
   useEffect(() => {
-    const processPaymentReturn = async () => {
+    const processSuccess = async () => {
       const paymentStatus = searchParams.get('payment');
       if (paymentStatus === 'success') {
-        // שחזור הנתונים ששמרנו לפני שיצאנו לדף התשלום
+        // שחזור נתונים מהזיכרון
         const savedImg = sessionStorage.getItem('imp_img');
         const savedTitle = sessionStorage.getItem('imp_title');
         const savedSubtitle = sessionStorage.getItem('imp_subtitle');
 
         if (savedImg) {
           try {
-            // העלאה ל-Supabase מתרחשת רק עכשיו - אחרי שהכסף "עבר"
+            // העלאה ל-Supabase רק אחרי שווידאנו תשלום
             const res = await fetch(savedImg);
             const blob = await res.blob();
             const fileName = `${Date.now()}.jpg`;
             await supabase.storage.from('images').upload(fileName, blob);
             const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
+            
             await supabase.from('entries').insert([{ 
               title: (savedTitle || 'SOVEREIGN').toUpperCase(), 
               subtitle: savedSubtitle || '', 
               image_url: publicUrl 
             }]);
 
-            // הפעלת הטקס המלכותי והזיקוקים
+            // הפעלת החגיגה
             setIsCoronating(true);
-            const audio = new Audio('/victory.mp3'); audio.play().catch(() => {});
+            const audio = new Audio('/victory.mp3'); 
+            audio.play().catch(() => {});
             
             setTimeout(() => {
               setStatus('success');
@@ -66,17 +69,17 @@ export default function ImperialUploadPage() {
             }, 3000);
 
             setTimeout(() => setIsCoronating(false), 8000);
-            sessionStorage.clear(); // ניקוי הזיכרון הזמני
+            sessionStorage.clear();
           } catch (err) {
-            console.error("Failed to secure legacy:", err);
+            console.error("Ascension failed:", err);
           }
         }
       }
     };
-    processPaymentReturn();
+    processSuccess();
   }, [searchParams]);
 
-  // לוגיקת הזיקוקים (לא נגעתי בעיצוב)
+  // לוגיקת הזיקוקים
   useEffect(() => {
     if (status !== 'success') return;
     const canvas = canvasRef.current; if (!canvas) return;
@@ -122,7 +125,7 @@ export default function ImperialUploadPage() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, [status]);
 
-  // פונקציות עזר (לא נגעתי)
+  // פונקציות תפעוליות
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files?.[0]) {
       const reader = new FileReader();
@@ -152,22 +155,23 @@ export default function ImperialUploadPage() {
     setCroppedImage(canvas.toDataURL('image/jpeg', 1.0)); setStatus('preview');
   }
 
-  // הפונקציה המתוקנת: לא מפעילה זיקוקים, אלא שולחת לתשלום
+  // --- הכפתור ששולח לתשלום ---
   const handleUpload = async () => {
     if (!croppedImage) return;
-    // שמירת נתונים זמנית כדי שלא ייעלמו במעבר דף
+    
+    // שמירת הנתונים בזיכרון המקומי לפני היציאה מהדף
     sessionStorage.setItem('imp_img', croppedImage);
     sessionStorage.setItem('imp_title', title);
     sessionStorage.setItem('imp_subtitle', subtitle);
     
-    // מעבר לדף התשלום
+    // מעבר לדף התשלום (Checkout)
     router.push('/checkout');
   };
 
   return (
     <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-center overflow-hidden font-serif relative select-none ${isShaking ? 'animate-screen-shake' : ''}`}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[2000]" style={{ mixBlendMode: 'screen' }} />
-      <div className="absolute inset-0 z-0" style={{ backgroundImage: "url('/bg.jpg')", backgroundSize: 'cover', filter: status === 'success' ? 'brightness(0.5)' : 'brightness(0.2)', transition: 'filter 2s ease-in-out' }}></div>      
+      <div className="absolute inset-0 z-0" style={{ backgroundImage: "url('/bg.jpg')", backgroundSize: 'cover', filter: status === 'success' ? 'brightness(0.5)' : 'brightness(0.2)', transition: 'filter 2s ease-in-out' }}></div>      
       
       {status === 'idle' && <div className="absolute inset-0 z-5 leather-dosage animate-in fade-in duration-1000"></div>}
 
