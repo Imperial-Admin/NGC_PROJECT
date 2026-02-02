@@ -6,27 +6,31 @@ import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'rea
 import 'react-image-crop/dist/ReactCrop.css'; 
 import { Upload, CheckCircle2, Shield, Minus, Plus } from 'lucide-react';
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function ImperialUploadPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<'idle' | 'details' | 'preview' | 'success'>('idle');
+  
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
   const [zoom, setZoom] = useState(1);
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
+  const [status, setStatus] = useState<'idle' | 'details' | 'preview' | 'success'>('idle');
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
-  // --- לוגיקת חזרה מהתשלום + ניקוי כתובת אוטומטי ---
+  // לוגיקת חזרה מהתשלום וניקוי כתובת אוטומטי
   useEffect(() => {
     const paymentStatus = searchParams.get('payment');
     if (paymentStatus === 'success') {
@@ -34,7 +38,7 @@ export default function ImperialUploadPage() {
       if (savedImg) {
         setStatus('success');
         setIsCoronating(true);
-        // השורה הזו מנקה את הכתובת למעלה כדי שהזיקוקים לא יקפצו סתם בטסט הבא!
+        // מנקה את ה-URL מהפרמטרים מיד כדי שלא יחזור על עצמו ברענון
         window.history.replaceState({}, '', window.location.pathname);
         const audio = new Audio('/victory.mp3'); audio.play().catch(() => {});
         setTimeout(() => setIsCoronating(false), 8000);
@@ -83,13 +87,10 @@ export default function ImperialUploadPage() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, [status]);
 
-  // הכפתור ששולח לתשלום
   const handleUpload = async () => {
     if (!croppedImage) return;
     sessionStorage.setItem('imp_img', croppedImage);
-    sessionStorage.setItem('imp_title', title);
-    sessionStorage.setItem('imp_subtitle', subtitle);
-    router.push('/checkout'); // מעבר לדף התשלום
+    router.push('/checkout'); // מעבר ישיר לתשלום
   };
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -97,6 +98,14 @@ export default function ImperialUploadPage() {
       const reader = new FileReader();
       reader.onload = () => { setImageSrc(reader.result?.toString() || null); setStatus('details'); setCrop(undefined); setZoom(1); };
       reader.readAsDataURL(e.target.files[0]);
+    }
+  }
+
+  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const { width, height } = e.currentTarget;
+    if (!crop) {
+      const initialCrop = centerCrop(makeAspectCrop({ unit: '%', width: 90 }, 1.7, width, height), width, height);
+      setCrop(initialCrop);
     }
   }
 
@@ -111,14 +120,6 @@ export default function ImperialUploadPage() {
     ctx.translate(centerX, centerY); ctx.scale(zoom, zoom); ctx.translate(-centerX, -centerY);
     ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight); ctx.restore();
     setCroppedImage(canvas.toDataURL('image/jpeg', 1.0)); setStatus('preview');
-  }
-
-  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    const { width, height } = e.currentTarget;
-    if (!crop) {
-      const initialCrop = centerCrop(makeAspectCrop({ unit: '%', width: 90 }, 1.7, width, height), width, height);
-      setCrop(initialCrop);
-    }
   }
 
   return (
@@ -153,6 +154,11 @@ export default function ImperialUploadPage() {
                   </ReactCrop>
                 </div>
             </div>
+            <div className="w-full flex flex-col items-center gap-2">
+              <div className="w-full max-w-md flex items-center gap-4 px-4 py-2 bg-black/40 border border-[#b38f4a]/20 rounded-full backdrop-blur-sm">
+                <Minus className="w-4 h-4 text-[#b38f4a]/60" /><input type="range" min={1} max={3} step={0.1} value={zoom} onChange={(e) => setZoom(Number(e.target.value))} className="flex-1 h-1 bg-[#2a1a05] rounded-lg appearance-none cursor-pointer accent-[#b38f4a]" /><Plus className="w-4 h-4 text-[#b38f4a]/60" />
+              </div>
+            </div>
             <div className="w-full max-w-md space-y-4">
               <input type="text" placeholder="NAME" value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 text-center text-xs tracking-[0.4em] uppercase text-white font-bold" />
               <input type="text" placeholder="MESSAGE" value={subtitle} onChange={e => setSubtitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 text-center text-[10px] tracking-[0.3em] uppercase text-white italic" />
@@ -174,7 +180,7 @@ export default function ImperialUploadPage() {
             </div>
             <div className="flex gap-6 w-[400px] mt-12">
               <button onClick={() => setStatus('details')} className="flex-1 py-4 border border-[#b38f4a]/30 text-[#b38f4a] uppercase text-[10px] font-bold">Edit</button>
-              <button onClick={handleUpload} className="flex-[2] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl" style={{ backgroundImage: imperialGold }}>
+              <button onClick={handleUpload} className="flex-[2] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl active:scale-95 transition-all" style={{ backgroundImage: imperialGold }}>
                 <Shield className="mr-2 inline w-4 h-4" /> Claim Throne
               </button>
             </div>
@@ -184,7 +190,7 @@ export default function ImperialUploadPage() {
           <div className="text-center flex flex-col items-center animate-in zoom-in duration-700">
             <CheckCircle2 className="w-16 h-16 text-green-500 mb-8" />
             <h2 className="text-4xl font-black tracking-[0.3em] text-white uppercase italic">Legacy Secured</h2>
-            <button onClick={() => window.location.reload()} className="mt-8 text-[#b38f4a] border-b border-[#b38f4a]/30 pb-1 text-[10px] tracking-[0.4em] uppercase hover:text-white">Return</button>
+            <button onClick={() => window.location.reload()} className="mt-8 text-[#b38f4a] border-b border-[#b38f4a]/30 pb-1 text-[10px] tracking-[0.4em] uppercase hover:text-white transition-colors">Return</button>
           </div>
         )}
       </div>
