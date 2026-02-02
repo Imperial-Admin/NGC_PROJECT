@@ -60,8 +60,11 @@ export default function CheckoutPage() {
             {/* קו מפריד בזהב המלכותי */}
             <div className="h-[1px] w-full bg-[#b38f4a]/20 my-12"></div>
 
-            {/* כפתור תשלום מאובטח בזהב המלכותי המדויק */}
-            <button className="group relative w-full overflow-hidden bg-[#b38f4a] py-6 transition-all hover:bg-[#c5a35d] active:scale-[0.99] shadow-[0_20px_50px_-10px_rgba(179,143,74,0.4)]">
+            {/* כפתור תשלום מאובטח עם הקישור שמוביל חזרה לחגיגה */}
+            <button 
+              onClick={() => router.push('/upload?payment=success')}
+              className="group relative w-full overflow-hidden bg-[#b38f4a] py-6 transition-all hover:bg-[#c5a35d] active:scale-[0.99] shadow-[0_20px_50px_-10px_rgba(179,143,74,0.4)]"
+            >
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" 
                      style={{ background: `linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.5) 45%, rgba(255,255,255,0.1) 50%, transparent 60%)`, backgroundSize: '200% 100%', animation: 'shimmer 2.5s infinite linear' }}></div>
                 
@@ -70,7 +73,7 @@ export default function CheckoutPage() {
                 </span>
             </button>
 
-            {/* שורת אמון מעודכנת עם כל הכרטיסים והקריפטו */}
+            {/* שורת אמון מעודכנת */}
             <div className="mt-10 flex flex-col items-center gap-6">
                 <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 text-[9px] tracking-[0.3em] font-black text-[#f1e4d1]">
                     <span className="hover:text-white transition-colors cursor-default">MASTERCARD</span>
@@ -83,7 +86,6 @@ export default function CheckoutPage() {
                     <span className="text-[#b38f4a]">USDT</span>
                 </div>
                 
-                {/* חותמת אבטחה ברורה */}
                 <div className="flex items-center gap-3">
                     <Lock className="w-3.5 h-3.5 text-[#b38f4a]" strokeWidth={2} />
                     <p className="text-[8px] tracking-[0.4em] uppercase text-white font-bold">

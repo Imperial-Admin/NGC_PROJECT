@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'; 
@@ -12,6 +12,10 @@ const supabase = createClient(
 );
 
 export default function ImperialUploadPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // הגדרות State
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
   const [zoom, setZoom] = useState(1);
@@ -22,11 +26,23 @@ export default function ImperialUploadPage() {
   const [subtitle, setSubtitle] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
+  
   const imgRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
+  // --- הקוד שבודק אם חזרת מהתשלום (ממוקם נכון עכשיו) ---
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    if (paymentStatus === 'success') {
+      setStatus('success');
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 1000);
+    }
+  }, [searchParams]);
+
+  // לוגיקת הזיקוקים
   useEffect(() => {
     if (status !== 'success') return;
     const canvas = canvasRef.current; if (!canvas) return;
@@ -126,36 +142,20 @@ export default function ImperialUploadPage() {
   }
 
   const handleUpload = async () => {
-    if (!croppedImage) return;
-    try {
-      const res = await fetch(croppedImage);
-      const blob = await res.blob();
-      const fileName = `${Date.now()}.jpg`;
-      await supabase.storage.from('images').upload(fileName, blob);
-      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
-      await supabase.from('entries').insert([{ title: title.toUpperCase(), subtitle, image_url: publicUrl }]);
-      
-      setIsCoronating(true);
-      const audio = new Audio('/victory.mp3'); audio.volume = 1.0; audio.play().catch(() => {});
-      setTimeout(() => {
-        setStatus('success');
-        setIsShaking(true);
-        setTimeout(() => setIsShaking(false), 1000);
-      }, 3000);
-      setTimeout(() => setIsCoronating(false), 8000);
-
-    } catch (err) { alert('Error: ' + err); }
+    // בטסטים: אנחנו עוברים ישר לתשלום. בהמשך נחזיר כאן את הקוד ששומר ב-Supabase
+    router.push('/checkout');
   };
 
   return (
     <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-center overflow-hidden font-serif relative select-none ${isShaking ? 'animate-screen-shake' : ''}`}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[2000]" style={{ mixBlendMode: 'screen' }} />
-<div className="absolute inset-0 z-0" style={{ 
-  backgroundImage: "url('/bg.jpg')", 
-  backgroundSize: 'cover', 
-  filter: status === 'success' ? 'brightness(0.5)' : 'brightness(0.2)', 
-  transition: 'filter 2s ease-in-out' 
-}}></div>      
+      <div className="absolute inset-0 z-0" style={{ 
+        backgroundImage: "url('/bg.jpg')", 
+        backgroundSize: 'cover', 
+        filter: status === 'success' ? 'brightness(0.5)' : 'brightness(0.2)', 
+        transition: 'filter 2s ease-in-out' 
+      }}></div>      
+      
       {status === 'idle' && (
         <div className="absolute inset-0 z-5 leather-dosage animate-in fade-in duration-1000"></div>
       )}
@@ -254,12 +254,8 @@ export default function ImperialUploadPage() {
         .animate-price-pulse { animation: flashEffect 2s ease-in-out infinite; }
         @keyframes crownDrop { 0% { transform: translateY(-500px); opacity: 0; } 60% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(150px) scale(1.5); opacity: 0; } }
         .animate-crown-drop { animation: crownDrop 5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-       @keyframes screenShake { 
-  0%, 100% { transform: translate3d(0, 0, 0); } 
-  25% { transform: translate3d(-4px, -4px, 0); } 
-  75% { transform: translate3d(4px, 4px, 0); } 
-}
-.animate-screen-shake { animation: screenShake 0.5s ease-out both; }
+        @keyframes screenShake { 0%, 100% { transform: translate3d(0, 0, 0); } 25% { transform: translate3d(-4px, -4px, 0); } 75% { transform: translate3d(4px, 4px, 0); } }
+        .animate-screen-shake { animation: screenShake 0.5s ease-out both; }
         @keyframes proclamation { 0% { opacity: 0; transform: scale(0.9); } 20% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
         .animate-proclamation { animation: proclamation 4s ease-in-out forwards; }
         .leather-dosage {
