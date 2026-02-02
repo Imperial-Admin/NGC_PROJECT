@@ -11,7 +11,6 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 export default function ImperialUploadPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
   const [status, setStatus] = useState<'idle' | 'details' | 'preview' | 'success'>('idle');
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
@@ -27,20 +26,16 @@ export default function ImperialUploadPage() {
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
-  // --- לוגיקת ניקוי הכתובת והפעלת הזיקוקים ---
+  // --- לוגיקת חזרה מהתשלום + ניקוי כתובת אוטומטי ---
   useEffect(() => {
     const paymentStatus = searchParams.get('payment');
     if (paymentStatus === 'success') {
       const savedImg = sessionStorage.getItem('imp_img');
-      
       if (savedImg) {
-        // מפעילים את הזיקוקים
         setStatus('success');
         setIsCoronating(true);
-        
-        // התיקון הקריטי: מנקים את הכתובת מה-URL כדי שלא יחזור על עצמו
+        // השורה הזו מנקה את הכתובת למעלה כדי שהזיקוקים לא יקפצו סתם בטסט הבא!
         window.history.replaceState({}, '', window.location.pathname);
-        
         const audio = new Audio('/victory.mp3'); audio.play().catch(() => {});
         setTimeout(() => setIsCoronating(false), 8000);
         sessionStorage.clear();
@@ -48,7 +43,7 @@ export default function ImperialUploadPage() {
     }
   }, [searchParams]);
 
-  // לוגיקת הזיקוקים (לא השתנתה)
+  // לוגיקת הזיקוקים
   useEffect(() => {
     if (status !== 'success') return;
     const canvas = canvasRef.current; if (!canvas) return;
@@ -88,12 +83,13 @@ export default function ImperialUploadPage() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, [status]);
 
+  // הכפתור ששולח לתשלום
   const handleUpload = async () => {
     if (!croppedImage) return;
     sessionStorage.setItem('imp_img', croppedImage);
     sessionStorage.setItem('imp_title', title);
     sessionStorage.setItem('imp_subtitle', subtitle);
-    router.push('/checkout'); // עובר לתשלום
+    router.push('/checkout'); // מעבר לדף התשלום
   };
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -168,9 +164,10 @@ export default function ImperialUploadPage() {
           <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full">
             <div className="relative w-[50vw] max-w-[850px] h-[50vh] rounded-lg shadow-2xl shrink-0" style={{ padding: '4px', backgroundImage: imperialGold }}>
                 <div className="h-full w-full rounded-sm overflow-hidden relative border-[1px] border-[#D4AF37]/20 pb-14 bg-black">
-                  <img src={croppedImage!} className="w-full h-full object-contain" />
-                  <div className="absolute bottom-0 left-0 right-0 h-14 z-30 flex flex-col items-center justify-center backdrop-blur-md bg-black/70 border-t-2 border-[#FBF5B7]/50">
+                  <img src={croppedImage!} className="w-full h-full object-contain contrast-115 brightness-95" />
+                  <div className="absolute bottom-0 left-0 right-0 h-14 z-30 flex flex-col items-center justify-center backdrop-blur-md bg-black/70 border-t-2 border-[#FBF5B7]/50 shadow-[inset_0_5px_15px_rgba(212,175,55,0.2)]">
                         <h2 className="text-sm tracking-[0.4em] uppercase font-black text-[#FBF5B7]">{title}</h2>
+                        <div className="h-[1px] w-8 bg-[#D4AF37] my-1 opacity-50"></div>
                         <p className="text-[#D4AF37] text-[10px] tracking-[0.4em] italic uppercase px-4">"{subtitle}"</p>
                   </div>
                 </div>
