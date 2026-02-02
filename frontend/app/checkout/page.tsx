@@ -1,17 +1,15 @@
 'use client';
 import { useState, Suspense } from 'react';
-import { ChevronLeft, Lock, Shield, CreditCard, Bitcoin, Check } from 'lucide-react';
+import { ChevronLeft, Lock, Shield, CreditCard, Bitcoin } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // זיהוי המקור: האם זו תרומה לטבלה או העלאת תמונה
   const source = searchParams.get('source');
   const isTribute = source === 'tribute';
 
-  // ניהול מצב התשלום: 'selection' (בחירה), 'card' (אשראי), 'crypto' (קריפטו)
   const [method, setMethod] = useState<'selection' | 'card' | 'crypto'>('selection');
 
   const goldGradient = `linear-gradient(to right, rgba(179, 143, 74, 0.2), rgba(247, 239, 138, 0.5), rgba(179, 143, 74, 0.2))`;
@@ -22,10 +20,10 @@ function CheckoutContent() {
       <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 50% 50%, #1a1103 0%, #050505 100%)` }}></div>
 
       <div className="relative z-10 w-full max-w-[650px]">
-        {/* כפתור חזרה חכם */}
+        {/* כפתור חזרה - הוזז שמאלה */}
         <button 
           onClick={() => method === 'selection' ? router.back() : setMethod('selection')} 
-          className="absolute -left-44 top-1/2 -translate-y-1/2 hidden xl:flex items-center text-[#f1e4d1] text-[10px] tracking-[0.5em] uppercase hover:text-[#b38f4a] transition-all font-black whitespace-nowrap"
+          className="absolute -left-64 top-1/2 -translate-y-1/2 hidden xl:flex items-center text-[#f1e4d1] text-[10px] tracking-[0.5em] uppercase hover:text-[#b38f4a] transition-all font-black whitespace-nowrap"
         >
           <ChevronLeft className="w-5 h-5 mr-2" strokeWidth={3} /> {method === 'selection' ? 'Return' : 'Back to Selection'}
         </button>
@@ -34,7 +32,6 @@ function CheckoutContent() {
             <div className="absolute top-0 left-0 w-full h-[1px]" style={{ background: goldGradient }}></div>
             <div className="absolute bottom-0 left-0 w-full h-[1px]" style={{ background: goldGradient }}></div>
             
-            {/* כותרת משתנה לפי המקור */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
                 <div className="space-y-4 flex-1">
                     <Shield className="w-7 h-7 text-[#b38f4a]" strokeWidth={1.5} />
@@ -55,7 +52,6 @@ function CheckoutContent() {
 
             <div className="h-[1px] w-full bg-[#b38f4a]/20 my-10"></div>
 
-            {/* --- שלב א: בחירת אמצעי תשלום --- */}
             {method === 'selection' && (
               <div className="space-y-6 animate-in fade-in duration-500">
                 <p className="text-center text-[10px] tracking-[0.5em] uppercase text-[#f1e4d1]/60 mb-8">Select Payment Method</p>
@@ -78,7 +74,6 @@ function CheckoutContent() {
               </div>
             )}
 
-            {/* --- שלב ב: טופס אשראי --- */}
             {method === 'card' && (
               <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                 <div className="grid grid-cols-1 gap-6">
@@ -99,7 +94,6 @@ function CheckoutContent() {
               </div>
             )}
 
-            {/* --- שלב ג: פרטי קריפטו --- */}
             {method === 'crypto' && (
               <div className="text-center space-y-8 animate-in slide-in-from-right-4 duration-500">
                 <div className="p-6 border border-[#b38f4a]/20 bg-black/60 rounded-sm">
@@ -129,7 +123,6 @@ function CheckoutContent() {
   );
 }
 
-// מעטפת Suspense חובה לורסל
 export default function CheckoutPage() {
   return (
     <Suspense fallback={<div className="h-screen w-full bg-black flex items-center justify-center text-[#D4AF37] italic tracking-[0.5em] uppercase text-[10px]">Preparing Secure Gateway...</div>}>
