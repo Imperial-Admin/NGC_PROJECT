@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation'; // לחיבור הדפים
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const router = useRouter(); // הוספת הראוטר
+  const router = useRouter();
   const [buyers, setBuyers] = useState(0);
   const [likes, setLikes] = useState(756567);
   const [userCountry, setUserCountry] = useState("Monaco");
@@ -11,7 +11,6 @@ export default function Home() {
   const [isHeartBeating, setIsHeartBeating] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
   
-  // לוגיקת צופים ריאליסטית
   const MIN_VIEWERS = 123452; 
   const TARGET_BASE = 124500; 
   const [onlineViewers, setOnlineViewers] = useState(TARGET_BASE); 
@@ -115,25 +114,9 @@ export default function Home() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, []);
 
-  // --- לוגיקת החיבורים החדשה ---
+  // --- ניווט נקי בלי אפקטים מוקדמים ---
   const handleClaim = () => {
-    setIsCoronating(true);
-    const audio = new Audio('/victory.mp3'); audio.volume = 1.0; audio.play().catch(() => {});
-    setTimeout(() => {
-      setIsShaking(true); setBuyers(prev => prev + 1);
-      if ((window as any).createFirework) {
-         const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2.5;
-         for (let i = 0; i < 15; i++) {
-            const offsetX = (Math.random() - 0.5) * 300;
-            const offsetY = (Math.random() - 0.5) * 200;
-            (window as any).createFirework(centerX + offsetX, centerY + offsetY);
-         }
-      }
-      setTimeout(() => setIsShaking(false), 1000);
-      // אחרי האפקטים, מעבר לדף העלאה
-      setTimeout(() => router.push('/upload'), 2000); 
-    }, 5000);
-    setTimeout(() => setIsCoronating(false), 8000);
+    router.push('/upload');
   };
 
   const handleLike = () => {
@@ -145,11 +128,7 @@ export default function Home() {
   };
 
   const triggerTribute = () => {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2867/2867-preview.mp3'); audio.play().catch(() => {});
-    const randomTribute = tributes[Math.floor(Math.random() * tributes.length)]; setLatestTribute(randomTribute);
-    if ((window as any).createFirework) { (window as any).createFirework(window.innerWidth / 2, window.innerHeight / 2.5); }
-    // מעבר לדף תשלום עבור מחווה
-    setTimeout(() => router.push('/checkout?source=tribute'), 1000);
+    router.push('/checkout?source=tribute');
   };
 
   return (
@@ -298,7 +277,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- השלישייה שביקשת: SHARE / LIVE STREAM / HISTORY --- */}
+      {/* --- השלישייה: SHARE / LIVE STREAM / HISTORY --- */}
       <div className="absolute bottom-20 left-0 right-0 flex justify-center items-center gap-10 z-20">
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
