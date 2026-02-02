@@ -9,12 +9,11 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
 
   const handleAscension = async () => {
-    if (!name) return alert("Please enter your name, My Lord.");
+    // אם אין שם, פשוט לא עושים כלום (מונע את ההודעה הלבנה)
+    if (!name) return; 
     setLoading(true);
 
-    // שלב 1: כאן יבוא החיבור ל-Stripe (נבצע אותו מיד אחרי שתאשר שהדף עולה)
-    
-    // שלב 2: עדכון ה-Database
+    // עדכון ה-Database
     const { error } = await supabase
       .from('sovereigns')
       .insert([{ 
@@ -23,11 +22,13 @@ export default function CheckoutPage() {
         image_url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800' 
       }]);
 
-    if (error) {
-      alert("Error: " + error.message);
+    if (!error) {
+      // מעבר ישיר לדף ההיסטוריה עם פרמטר הזיקוקים (?success=true)
+      // מחליף את ה-alert שהיה כאן
+      router.push('/history?success=true'); 
     } else {
-      alert("Success! You have ascended the throne.");
-      router.push('/history'); // מעבר אוטומטי לראות את עצמך בארכיון
+      // במקרה של שגיאה, נדפיס אותה רק ב-Console כדי לא להרוס את העיצוב
+      console.error("Error during ascension:", error.message);
     }
     setLoading(false);
   };

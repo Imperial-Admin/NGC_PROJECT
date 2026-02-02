@@ -1,8 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+// עדכון ייבוא: הוספנו את useSearchParams
+import { useRouter, useSearchParams } from 'next/navigation'; 
 import { ArrowLeft, Crown, ShieldCheck, Gem } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+// ייבוא ספריית הזיקוקים
+import confetti from 'canvas-confetti';
 
 interface Sovereign {
   id: number;
@@ -20,11 +23,42 @@ interface Tribute {
 
 export default function HistoryPage() {
   const router = useRouter();
+  // הפעלת החיישן שבודק את כתובת ה-URL
+  const searchParams = useSearchParams();
   const [sovereigns, setSovereigns] = useState<Sovereign[]>([]);
   const [tributes, setTributes] = useState<Tribute[]>([]);
   const [loading, setLoading] = useState(true);
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
+
+  // אפקט להפעלת הזיקוקים ברגע שהדף נטען עם הפרמטר הנכון
+  useEffect(() => {
+    if (searchParams.get('success') === 'true') {
+      const end = Date.now() + 5 * 1000; // חגיגה של 5 שניות
+      const colors = ['#b38f4a', '#e6c68b', '#ffffff', '#7a5210'];
+
+      (function frame() {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          colors: colors
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          colors: colors
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchData() {
