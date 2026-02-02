@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { X, Copy, Check, Send, MessageCircle, Share2, Globe } from 'lucide-react'; // אייקונים חדשים לשיתוף
 
 export default function Home() {
   const router = useRouter();
@@ -10,8 +11,9 @@ export default function Home() {
   const [isShaking, setIsShaking] = useState(false);
   const [isHeartBeating, setIsHeartBeating] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false); // מצב חלונית שיתוף
+  const [copied, setCopied] = useState(false);
   
-  // לוגיקת צופים ריאליסטית
   const MIN_VIEWERS = 123452; 
   const TARGET_BASE = 124500; 
   const [onlineViewers, setOnlineViewers] = useState(TARGET_BASE); 
@@ -86,8 +88,7 @@ export default function Home() {
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     window.addEventListener('resize', resize); resize();
     class Particle {
-      x: number; y: number; vx: number; vy: number; alpha: number; color: string; 
-      gravity: number; friction: number; size: number; decay: number;
+      x: number; y: number; vx: number; vy: number; alpha: number; color: string; gravity: number; friction: number; size: number; decay: number;
       constructor(x: number, y: number, color: string) {
         this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 10 + 5;
         this.vx = Math.cos(angle) * velocity; this.vy = Math.sin(angle) * velocity;
@@ -117,6 +118,33 @@ export default function Home() {
 
   const handleClaim = () => router.push('/upload');
   const triggerTribute = () => router.push('/checkout?source=tribute');
+
+  // --- לוגיקת שיתוף חכמה ---
+  const handleShareClick = async () => {
+    const shareData = {
+      title: 'NGC — The Sovereign Asset',
+      text: 'The world\'s most exclusive digital throne. Will you claim your legacy?',
+      url: window.location.href
+    };
+
+    if (navigator.share) {
+      // אם זה מובייל - פתח תפריט שיתוף מובנה
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        setIsShareOpen(true); // אם נכשל, פתח את החלונית שלנו
+      }
+    } else {
+      // אם זה דסקטופ - פתח את החלונית המעוצבת
+      setIsShareOpen(true);
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleLike = () => {
     setLikes(prev => prev + 1); setIsHeartBeating(true);
@@ -190,12 +218,12 @@ export default function Home() {
                    </div>
                 </div>
              </div>
-             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-auto">
+             <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-none">
                 <div className="flex flex-col text-left absolute left-0 top-0">
                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b38f4a] font-bold">Endorse the</span>
                    <span className="text-[12px] uppercase tracking-[0.3em] text-white font-black leading-none">Imperial Asset</span>
                 </div>
-                <button onClick={handleLike} className={`absolute right-0 top-0 transform transition-transform duration-300 active:scale-90 outline-none ${isHeartBeating ? 'scale-125' : 'hover:scale-110'}`}>
+                <button onClick={handleLike} className={`absolute right-0 top-0 transform pointer-events-auto transition-transform duration-300 active:scale-90 outline-none ${isHeartBeating ? 'scale-125' : 'hover:scale-110'}`}>
                    <span className="text-4xl drop-shadow-[0_0_15px_rgba(255,0,0,0.6)]" style={{ color: '#FF0000' }}>❤</span>
                 </button>
              </div>
@@ -272,14 +300,60 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- השלישייה בצד שמאל בתחתית בלבד, ללא פס רץ --- */}
+      {/* --- הלינקים בצד שמאל בתחתית --- */}
       <div className="absolute bottom-4 left-10 flex items-center gap-6 z-20">
-         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
+         <button onClick={handleShareClick} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
+
+      {/* --- חלונית השיתוף הקיסרית (Imperial Share Modal) --- */}
+      {isShareOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-in fade-in duration-300">
+           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsShareOpen(false)}></div>
+           
+           <div className="relative w-full max-w-md bg-black border border-[#b38f4a]/40 p-8 shadow-[0_0_50px_rgba(0,0,0,1)] rounded-sm overflow-hidden animate-in zoom-in-95 duration-300">
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#b38f4a]/50 to-transparent"></div>
+              
+              <div className="flex justify-between items-start mb-8">
+                 <div>
+                    <h3 className="text-lg tracking-[0.4em] uppercase font-medium text-white mb-1">Share the Legacy</h3>
+                    <p className="text-[8px] tracking-[0.2em] text-[#b38f4a] uppercase">Sovereign Asset Protocol v1.0</p>
+                 </div>
+                 <button onClick={() => setIsShareOpen(false)} className="text-white/40 hover:text-white transition-colors">
+                    <X className="w-5 h-5" />
+                 </button>
+              </div>
+
+              <div className="space-y-6 text-center">
+                 {/* אזור ה-QR Code הפיקטיבי/מעוצב */}
+                 <div className="mx-auto w-32 h-32 border border-[#b38f4a]/20 p-2 bg-white/5 flex items-center justify-center relative group">
+                    <Globe className="w-16 h-16 text-[#b38f4a]/40 group-hover:scale-110 transition-transform duration-500" strokeWidth={1} />
+                    <div className="absolute inset-0 border border-[#b38f4a]/10 animate-pulse"></div>
+                 </div>
+
+                 <p className="text-[9px] tracking-[0.3em] uppercase text-[#b38f4a]/60">Invite others to the Imperial Presence</p>
+
+                 {/* כפתורי שיתוף מהירים */}
+                 <div className="flex justify-center gap-6 py-4 border-y border-[#b38f4a]/10">
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-110 transition-all"><MessageCircle className="w-6 h-6" /></button>
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-110 transition-all"><Send className="w-6 h-6" /></button>
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-110 transition-all"><Share2 className="w-6 h-6" /></button>
+                 </div>
+
+                 {/* כפתור העתק קישור */}
+                 <button 
+                    onClick={copyToClipboard}
+                    className="w-full py-4 bg-white/5 border border-[#b38f4a]/30 text-[#b38f4a] text-[10px] tracking-[0.4em] uppercase font-bold flex items-center justify-center gap-3 hover:bg-[#b38f4a]/10 transition-all active:scale-95"
+                 >
+                    {copied ? <><Check className="w-3 h-3" /> Link Copied</> : <><Copy className="w-3 h-3" /> Copy Sovereign Link</>}
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes slideUpGold { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
