@@ -11,7 +11,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// --- הרכיב עם כל העיצוב המקורי שלך ---
 function ImperialUploadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,17 +31,26 @@ function ImperialUploadContent() {
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
+  // --- לוגיקת הצלחה: זיקוקים, כתר ומוזיקה ---
   useEffect(() => {
     const paymentStatus = searchParams.get('payment');
     if (paymentStatus === 'success') {
       setStatus('success');
       setIsShaking(true);
+      setIsCoronating(true); // הפעלת אפקט הכתר
       window.history.replaceState({}, '', window.location.pathname);
+
+      // הפעלת המוזיקה המלכותית
+      const audio = new Audio('/victory.mp3');
+      audio.volume = 0.6;
+      audio.play().catch(e => console.log("Audio wait for interaction:", e));
+
       setTimeout(() => setIsShaking(false), 1000);
+      setTimeout(() => setIsCoronating(false), 8000);
     }
   }, [searchParams]);
 
-  // לוגיקת הזיקוקים
+  // לוגיקת הזיקוקים (ללא שינוי)
   useEffect(() => {
     if (status !== 'success') return;
     const canvas = canvasRef.current; if (!canvas) return;
@@ -52,8 +60,7 @@ function ImperialUploadContent() {
     window.addEventListener('resize', resize); resize();
 
     class Particle {
-      x: number; y: number; vx: number; vy: number; alpha: number; color: string; 
-      gravity: number; friction: number; size: number; decay: number;
+      x: number; y: number; vx: number; vy: number; alpha: number; color: string; gravity: number; friction: number; size: number; decay: number;
       constructor(x: number, y: number, color: string) {
         this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 10 + 5;
         this.vx = Math.cos(angle) * velocity; this.vy = Math.sin(angle) * velocity;
@@ -82,10 +89,7 @@ function ImperialUploadContent() {
     };
 
     const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2.5;
-    for (let i = 0; i < 15; i++) {
-        setTimeout(() => createFirework(centerX + (Math.random() - 0.5) * 400, centerY + (Math.random() - 0.5) * 300), i * 300);
-    }
-
+    for (let i = 0; i < 15; i++) { setTimeout(() => createFirework(centerX + (Math.random() - 0.5) * 400, centerY + (Math.random() - 0.5) * 300), i * 300); }
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, [status]);
 
@@ -140,15 +144,16 @@ function ImperialUploadContent() {
   return (
     <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-center overflow-hidden font-serif relative select-none ${isShaking ? 'animate-screen-shake' : ''}`}>
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[2000]" style={{ mixBlendMode: 'screen' }} />
-      <div className="absolute inset-0 z-0" style={{ 
-        backgroundImage: "url('/bg.jpg')", 
-        backgroundSize: 'cover', 
-        filter: status === 'success' ? 'brightness(0.5)' : 'brightness(0.2)', 
-        transition: 'filter 2s ease-in-out' 
-      }}></div>      
+      <div className="absolute inset-0 z-0" style={{ backgroundImage: "url('/bg.jpg')", backgroundSize: 'cover', filter: status === 'success' ? 'brightness(0.5)' : 'brightness(0.2)', transition: 'filter 2s ease-in-out' }}></div>      
       
-      {status === 'idle' && (
-        <div className="absolute inset-0 z-5 leather-dosage animate-in fade-in duration-1000"></div>
+      {status === 'idle' && ( <div className="absolute inset-0 z-5 leather-dosage animate-in fade-in duration-1000"></div> )}
+
+      {isCoronating && (
+        <div className="fixed inset-0 z-[1000] flex flex-col items-center justify-center pointer-events-none">
+           <div className="absolute inset-0 bg-black/95 animate-fade-in"></div>
+           <p className="z-[1001] text-lg md:text-2xl tracking-[0.8em] uppercase text-white font-light italic animate-proclamation">A New Sovereign Ascends</p>
+           <img src="/crown.png" alt="Crown" className="absolute top-0 z-[1002] animate-crown-drop w-1/2 md:w-1/3 max-w-lg filter drop-shadow-[0_0_50px_#D4AF37]" />
+        </div>
       )}
 
       <div className="w-full max-w-[1750px] px-6 relative z-10 flex flex-col items-center h-full justify-center">
@@ -251,7 +256,6 @@ function ImperialUploadContent() {
   );
 }
 
-// --- המעטפת הטכנית שמונעת שגיאות ב-Vercel בלי לשנות את העיצוב ---
 export default function ImperialUploadPage() {
   return (
     <Suspense fallback={<div className="h-screen w-full bg-black flex items-center justify-center text-[#D4AF37] italic tracking-[0.5em] uppercase text-[10px]">Loading Imperial Assets...</div>}>
