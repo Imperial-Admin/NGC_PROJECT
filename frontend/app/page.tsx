@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // לחיבור הדפים
 
 export default function Home() {
-  const router = useRouter(); // הוספת הראוטר לחיבור הדפים
+  const router = useRouter(); // הוספת הראוטר
   const [buyers, setBuyers] = useState(0);
   const [likes, setLikes] = useState(756567);
   const [userCountry, setUserCountry] = useState("Monaco");
@@ -11,6 +11,7 @@ export default function Home() {
   const [isHeartBeating, setIsHeartBeating] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
   
+  // לוגיקת צופים ריאליסטית
   const MIN_VIEWERS = 123452; 
   const TARGET_BASE = 124500; 
   const [onlineViewers, setOnlineViewers] = useState(TARGET_BASE); 
@@ -114,9 +115,25 @@ export default function Home() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, []);
 
-  // --- חיבור דף העלאה ---
+  // --- לוגיקת החיבורים החדשה ---
   const handleClaim = () => {
-    router.push('/upload');
+    setIsCoronating(true);
+    const audio = new Audio('/victory.mp3'); audio.volume = 1.0; audio.play().catch(() => {});
+    setTimeout(() => {
+      setIsShaking(true); setBuyers(prev => prev + 1);
+      if ((window as any).createFirework) {
+         const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2.5;
+         for (let i = 0; i < 15; i++) {
+            const offsetX = (Math.random() - 0.5) * 300;
+            const offsetY = (Math.random() - 0.5) * 200;
+            (window as any).createFirework(centerX + offsetX, centerY + offsetY);
+         }
+      }
+      setTimeout(() => setIsShaking(false), 1000);
+      // אחרי האפקטים, מעבר לדף העלאה
+      setTimeout(() => router.push('/upload'), 2000); 
+    }, 5000);
+    setTimeout(() => setIsCoronating(false), 8000);
   };
 
   const handleLike = () => {
@@ -127,9 +144,12 @@ export default function Home() {
     if ((window as any).createFirework) { (window as any).createFirework(window.innerWidth * 0.15, window.innerHeight * 0.7); }
   };
 
-  // --- חיבור דף תשלום (Tribute) ---
   const triggerTribute = () => {
-    router.push('/checkout?source=tribute');
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2867/2867-preview.mp3'); audio.play().catch(() => {});
+    const randomTribute = tributes[Math.floor(Math.random() * tributes.length)]; setLatestTribute(randomTribute);
+    if ((window as any).createFirework) { (window as any).createFirework(window.innerWidth / 2, window.innerHeight / 2.5); }
+    // מעבר לדף תשלום עבור מחווה
+    setTimeout(() => router.push('/checkout?source=tribute'), 1000);
   };
 
   return (
@@ -178,6 +198,7 @@ export default function Home() {
 
       <div className={`w-full h-full flex flex-col items-center justify-start z-10 pt-36 transition-opacity duration-1000 ${isCoronating ? 'opacity-10' : 'opacity-100'}`}>
         <div className="flex items-start justify-center gap-10 w-[98vw] max-w-[1750px] relative h-[50vh]">
+          
           <div className="hidden xl:flex flex-col w-64 h-full relative overflow-visible">
              <div className="flex flex-col h-full rounded-sm border border-[#b38f4a]/30 relative overflow-hidden shadow-2xl" style={{ backgroundImage: `linear-gradient(110deg, #2a1a05, #1a1103, #2a1a05)`, padding: '2px' }}>
                 <div className="bg-black/90 h-full w-full p-4 flex flex-col border border-[#b38f4a]/10">
@@ -277,6 +298,25 @@ export default function Home() {
         </div>
       </div>
 
+      {/* --- השלישייה שביקשת: SHARE / LIVE STREAM / HISTORY --- */}
+      <div className="absolute bottom-20 left-0 right-0 flex justify-center items-center gap-10 z-20">
+         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
+         <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
+         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
+         <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
+         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
+      </div>
+
+      <footer className="absolute bottom-0 left-0 w-full h-12 border-t border-[#b38f4a]/10 bg-black flex items-center overflow-hidden">
+        <div className="flex whitespace-nowrap animate-marquee-footer">
+            {[...Array(10)].map((_, i) => (
+                <span key={i} className="mx-12 text-[8px] tracking-[0.5em] uppercase text-[#b38f4a]/30 font-bold">
+                    Success is a choice. Sovereignty is a destiny. — Your legacy awaits until a greater tribute is paid.
+                </span>
+            ))}
+        </div>
+      </footer>
+
       <style>{`
         @keyframes slideUpGold { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-slide-up-gold { animation: slideUpGold 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
@@ -284,6 +324,8 @@ export default function Home() {
         .animate-marquee-smooth { animation: marqueeSmooth 60s linear infinite; }
         @keyframes marqueeSeamless { 0% { transform: translate3d(100%, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
         .animate-marquee-seamless { display: flex; animation: marqueeSeamless 35s linear infinite; will-change: transform; }
+        @keyframes marqueeFooter { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee-footer { animation: marqueeFooter 40s linear infinite; }
         @keyframes flashEffect { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
         .animate-price-pulse { animation: flashEffect 2s ease-in-out infinite; }
         @keyframes crownDrop { 0% { transform: translateY(-500px); opacity: 0; } 60% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(150px) scale(1.5); opacity: 0; } }
