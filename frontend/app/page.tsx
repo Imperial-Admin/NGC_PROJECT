@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Copy, Check, Send, MessageCircle, Share2, Globe } from 'lucide-react'; // אייקונים חדשים לשיתוף
+import { X, Copy, Check, Send, MessageCircle, Share2, Globe } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export default function Home() {
   const [isShaking, setIsShaking] = useState(false);
   const [isHeartBeating, setIsHeartBeating] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
-  const [isShareOpen, setIsShareOpen] = useState(false); // מצב חלונית שיתוף
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   
   const MIN_VIEWERS = 123452; 
@@ -119,23 +119,23 @@ export default function Home() {
   const handleClaim = () => router.push('/upload');
   const triggerTribute = () => router.push('/checkout?source=tribute');
 
-  // --- לוגיקת שיתוף חכמה ---
+  // --- לוגיקת שיתוף מתוקנת (רק חלונית יוקרתית בדסקטופ) ---
   const handleShareClick = async () => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const shareData = {
       title: 'NGC — The Sovereign Asset',
-      text: 'The world\'s most exclusive digital throne. Will you claim your legacy?',
+      text: 'The world\'s most exclusive digital throne.',
       url: window.location.href
     };
 
-    if (navigator.share) {
-      // אם זה מובייל - פתח תפריט שיתוף מובנה
+    if (isMobile && navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        setIsShareOpen(true); // אם נכשל, פתח את החלונית שלנו
+        setIsShareOpen(true);
       }
     } else {
-      // אם זה דסקטופ - פתח את החלונית המעוצבת
+      // בדסקטופ - תמיד פתח את החלונית המוזהבת שלנו
       setIsShareOpen(true);
     }
   };
@@ -300,7 +300,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- הלינקים בצד שמאל בתחתית --- */}
       <div className="absolute bottom-4 left-10 flex items-center gap-6 z-20">
          <button onClick={handleShareClick} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
@@ -309,7 +308,7 @@ export default function Home() {
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
 
-      {/* --- חלונית השיתוף הקיסרית (Imperial Share Modal) --- */}
+      {/* --- חלונית השיתוף המוזהבת והיקרה --- */}
       {isShareOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-in fade-in duration-300">
            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsShareOpen(false)}></div>
@@ -320,7 +319,7 @@ export default function Home() {
               <div className="flex justify-between items-start mb-8">
                  <div>
                     <h3 className="text-lg tracking-[0.4em] uppercase font-medium text-white mb-1">Share the Legacy</h3>
-                    <p className="text-[8px] tracking-[0.2em] text-[#b38f4a] uppercase">Sovereign Asset Protocol v1.0</p>
+                    <p className="text-[8px] tracking-[0.2em] text-[#b38f4a] uppercase font-bold">Imperial Protocol v1.0</p>
                  </div>
                  <button onClick={() => setIsShareOpen(false)} className="text-white/40 hover:text-white transition-colors">
                     <X className="w-5 h-5" />
@@ -328,27 +327,24 @@ export default function Home() {
               </div>
 
               <div className="space-y-6 text-center">
-                 {/* אזור ה-QR Code הפיקטיבי/מעוצב */}
                  <div className="mx-auto w-32 h-32 border border-[#b38f4a]/20 p-2 bg-white/5 flex items-center justify-center relative group">
                     <Globe className="w-16 h-16 text-[#b38f4a]/40 group-hover:scale-110 transition-transform duration-500" strokeWidth={1} />
                     <div className="absolute inset-0 border border-[#b38f4a]/10 animate-pulse"></div>
                  </div>
 
-                 <p className="text-[9px] tracking-[0.3em] uppercase text-[#b38f4a]/60">Invite others to the Imperial Presence</p>
+                 <p className="text-[9px] tracking-[0.3em] uppercase text-[#b38f4a]/60 italic font-medium">Invite others to the Imperial Presence</p>
 
-                 {/* כפתורי שיתוף מהירים */}
                  <div className="flex justify-center gap-6 py-4 border-y border-[#b38f4a]/10">
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-110 transition-all"><MessageCircle className="w-6 h-6" /></button>
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-110 transition-all"><Send className="w-6 h-6" /></button>
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-110 transition-all"><Share2 className="w-6 h-6" /></button>
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><MessageCircle className="w-6 h-6" /></button>
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><Send className="w-6 h-6" /></button>
+                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><Share2 className="w-6 h-6" /></button>
                  </div>
 
-                 {/* כפתור העתק קישור */}
                  <button 
                     onClick={copyToClipboard}
-                    className="w-full py-4 bg-white/5 border border-[#b38f4a]/30 text-[#b38f4a] text-[10px] tracking-[0.4em] uppercase font-bold flex items-center justify-center gap-3 hover:bg-[#b38f4a]/10 transition-all active:scale-95"
+                    className="w-full py-4 bg-white/5 border border-[#b38f4a]/30 text-[#b38f4a] text-[10px] tracking-[0.4em] uppercase font-black flex items-center justify-center gap-3 hover:bg-[#b38f4a]/10 transition-all active:scale-95"
                  >
-                    {copied ? <><Check className="w-3 h-3" /> Link Copied</> : <><Copy className="w-3 h-3" /> Copy Sovereign Link</>}
+                    {copied ? <><Check className="w-3 h-3" /> Copied to Ledger</> : <><Copy className="w-3 h-3" /> Copy Sovereign Link</>}
                  </button>
               </div>
            </div>
