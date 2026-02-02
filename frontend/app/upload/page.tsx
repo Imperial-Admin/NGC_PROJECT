@@ -149,9 +149,13 @@ export default function ImperialUploadPage() {
 
   return (
     <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-center overflow-hidden font-serif relative select-none ${isShaking ? 'animate-screen-shake' : ''}`}>
-      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[100]" style={{ mixBlendMode: 'screen' }} />
-      <div className="absolute inset-0 z-0" style={{ backgroundImage: "url('/bg.jpg')", backgroundSize: 'cover', filter: 'brightness(0.2)' }}></div>
-      
+      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[2000]" style={{ mixBlendMode: 'screen' }} />
+<div className="absolute inset-0 z-0" style={{ 
+  backgroundImage: "url('/bg.jpg')", 
+  backgroundSize: 'cover', 
+  filter: status === 'success' ? 'brightness(0.5)' : 'brightness(0.2)', 
+  transition: 'filter 2s ease-in-out' 
+}}></div>      
       {status === 'idle' && (
         <div className="absolute inset-0 z-5 leather-dosage animate-in fade-in duration-1000"></div>
       )}
@@ -250,8 +254,12 @@ export default function ImperialUploadPage() {
         .animate-price-pulse { animation: flashEffect 2s ease-in-out infinite; }
         @keyframes crownDrop { 0% { transform: translateY(-500px); opacity: 0; } 60% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(150px) scale(1.5); opacity: 0; } }
         .animate-crown-drop { animation: crownDrop 5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        @keyframes screenShake { 0%, 100% { transform: translate3d(0, 0, 0); } 5%, 15%, 25%, 35%, 45% { transform: translate3d(-10px, -10px, 0); } 10%, 20%, 30%, 40%, 50% { transform: translate3d(10px, 10px, 0); } }
-        .animate-screen-shake { animation: screenShake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+       @keyframes screenShake { 
+  0%, 100% { transform: translate3d(0, 0, 0); } 
+  25% { transform: translate3d(-4px, -4px, 0); } 
+  75% { transform: translate3d(4px, 4px, 0); } 
+}
+.animate-screen-shake { animation: screenShake 0.5s ease-out both; }
         @keyframes proclamation { 0% { opacity: 0; transform: scale(0.9); } 20% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
         .animate-proclamation { animation: proclamation 4s ease-in-out forwards; }
         .leather-dosage {
