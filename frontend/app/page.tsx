@@ -137,10 +137,10 @@ export default function Home() {
       </div>
 
       <header className="absolute top-10 left-10 z-20 flex flex-col items-start">
-        <h1 className="text-4xl md:text-5xl font-black italic tracking-[0.3em] bg-clip-text text-transparent" style={{ backgroundImage: imperialGold }}>NGC</h1>
+        <h1 className="text-4xl md:text-5xl font-serif font-black italic tracking-[0.3em] bg-clip-text text-transparent" style={{ backgroundImage: imperialGold }}>NGC</h1>
         <div className="flex items-center mt-2 space-x-3 opacity-90">
            <div className="h-[1px] w-6" style={{ backgroundImage: `linear-gradient(to right, #b38f4a, transparent)` }}></div>
-           <p className="text-[10px] tracking-[0.4em] uppercase font-medium" style={{ color: '#b38f4a' }}>The Sovereign Asset</p>
+           <p className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase font-medium" style={{ color: '#b38f4a' }}>The Sovereign Asset</p>
         </div>
       </header>
 
@@ -272,14 +272,24 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- השלישייה בצד שמאל בתחתית העמוד כפי שביקשת --- */}
-      <div className="absolute bottom-10 left-10 flex items-center gap-10 z-20">
+      {/* --- השלישייה בצד שמאל בתחתית, צפופים ונמוכים יותר --- */}
+      <div className="absolute bottom-4 left-10 flex items-center gap-6 z-20">
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
+
+      <footer className="absolute bottom-0 left-0 w-full h-12 border-t border-[#b38f4a]/10 bg-black flex items-center overflow-hidden">
+        <div className="flex whitespace-nowrap animate-marquee-footer">
+            {[...Array(10)].map((_, i) => (
+                <span key={i} className="mx-12 text-[8px] tracking-[0.5em] uppercase text-[#b38f4a]/30 font-bold">
+                    Success is a choice. Sovereignty is a destiny. — Your legacy awaits until a greater tribute is paid.
+                </span>
+            ))}
+        </div>
+      </footer>
 
       <style>{`
         @keyframes slideUpGold { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -288,6 +298,8 @@ export default function Home() {
         .animate-marquee-smooth { animation: marqueeSmooth 60s linear infinite; }
         @keyframes marqueeSeamless { 0% { transform: translate3d(100%, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
         .animate-marquee-seamless { display: flex; animation: marqueeSeamless 35s linear infinite; will-change: transform; }
+        @keyframes marqueeFooter { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .animate-marquee-footer { animation: marqueeFooter 40s linear infinite; }
         @keyframes flashEffect { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
         .animate-price-pulse { animation: flashEffect 2s ease-in-out infinite; }
         @keyframes crownDrop { 0% { transform: translateY(-500px); opacity: 0; } 60% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(150px) scale(1.5); opacity: 0; } }
