@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Copy, Check, Send, MessageCircle, Share2, Globe } from 'lucide-react';
+import { X, Copy, Check, Globe, Share2 } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
@@ -119,23 +119,13 @@ export default function Home() {
   const handleClaim = () => router.push('/upload');
   const triggerTribute = () => router.push('/checkout?source=tribute');
 
-  // --- לוגיקת שיתוף מתוקנת (רק חלונית יוקרתית בדסקטופ) ---
   const handleShareClick = async () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const shareData = {
-      title: 'NGC — The Sovereign Asset',
-      text: 'The world\'s most exclusive digital throne.',
-      url: window.location.href
-    };
-
     if (isMobile && navigator.share) {
       try {
-        await navigator.share(shareData);
-      } catch (err) {
-        setIsShareOpen(true);
-      }
+        await navigator.share({ title: 'NGC', text: 'The Sovereign Asset', url: window.location.href });
+      } catch (err) { setIsShareOpen(true); }
     } else {
-      // בדסקטופ - תמיד פתח את החלונית המוזהבת שלנו
       setIsShareOpen(true);
     }
   };
@@ -177,7 +167,7 @@ export default function Home() {
             <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shadow-[0_0_12px_red]"></div>
             <span className="text-[10px] tracking-[0.4em] uppercase font-black text-white">Live</span>
          </div>
-         <p className="mt-2 text-lg md:text-xl font-mono font-black text-white tracking-tighter drop-shadow-[0_2px_8px_rgba(0,0,0,1)] transition-all duration-1000 ease-in-out">
+         <p className="mt-2 text-lg md:text-xl font-mono font-black text-white tracking-tighter drop-shadow-[0_2px_8_rgba(0,0,0,1)] transition-all duration-1000 ease-in-out">
             {onlineViewers.toLocaleString()}
          </p>
          <p className="text-[8px] uppercase tracking-[0.4em] text-[#b38f4a] font-bold opacity-80">LIVE GLOBAL AUDIENCE</p>
@@ -200,7 +190,6 @@ export default function Home() {
 
       <div className={`w-full h-full flex flex-col items-center justify-start z-10 pt-36 transition-opacity duration-1000 ${isCoronating ? 'opacity-10' : 'opacity-100'}`}>
         <div className="flex items-start justify-center gap-10 w-[98vw] max-w-[1750px] relative h-[50vh]">
-          
           <div className="hidden xl:flex flex-col w-64 h-full relative overflow-visible">
              <div className="flex flex-col h-full rounded-sm border border-[#b38f4a]/30 relative overflow-hidden shadow-2xl" style={{ backgroundImage: `linear-gradient(110deg, #2a1a05, #1a1103, #2a1a05)`, padding: '2px' }}>
                 <div className="bg-black/90 h-full w-full p-4 flex flex-col border border-[#b38f4a]/10">
@@ -308,44 +297,36 @@ export default function Home() {
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
 
-      {/* --- חלונית השיתוף המוזהבת והיקרה --- */}
+      {/* --- חלונית השיתוף הקיסרית המשודרגת --- */}
       {isShareOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-in fade-in duration-300">
-           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsShareOpen(false)}></div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 transition-all duration-500">
+           <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setIsShareOpen(false)}></div>
            
-           <div className="relative w-full max-w-md bg-black border border-[#b38f4a]/40 p-8 shadow-[0_0_50px_rgba(0,0,0,1)] rounded-sm overflow-hidden animate-in zoom-in-95 duration-300">
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#b38f4a]/50 to-transparent"></div>
+           <div className="relative w-full max-w-lg bg-black border border-[#b38f4a]/30 p-12 shadow-[0_0_100px_rgba(0,0,0,1)] rounded-sm animate-in zoom-in-95 duration-500 overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-[1px]" style={{ background: `linear-gradient(to right, transparent, #b38f4a, transparent)` }}></div>
               
-              <div className="flex justify-between items-start mb-8">
-                 <div>
-                    <h3 className="text-lg tracking-[0.4em] uppercase font-medium text-white mb-1">Share the Legacy</h3>
-                    <p className="text-[8px] tracking-[0.2em] text-[#b38f4a] uppercase font-bold">Imperial Protocol v1.0</p>
-                 </div>
-                 <button onClick={() => setIsShareOpen(false)} className="text-white/40 hover:text-white transition-colors">
-                    <X className="w-5 h-5" />
-                 </button>
-              </div>
-
-              <div className="space-y-6 text-center">
-                 <div className="mx-auto w-32 h-32 border border-[#b38f4a]/20 p-2 bg-white/5 flex items-center justify-center relative group">
-                    <Globe className="w-16 h-16 text-[#b38f4a]/40 group-hover:scale-110 transition-transform duration-500" strokeWidth={1} />
-                    <div className="absolute inset-0 border border-[#b38f4a]/10 animate-pulse"></div>
+              <button onClick={() => setIsShareOpen(false)} className="absolute top-6 right-6 text-white/20 hover:text-[#b38f4a] transition-colors"><X className="w-6 h-6" strokeWidth={1} /></button>
+              
+              <div className="text-center space-y-10">
+                 <div className="space-y-4">
+                    <Share2 className="w-8 h-8 text-[#b38f4a] mx-auto opacity-50" strokeWidth={1} />
+                    <h3 className="text-xl tracking-[0.6em] uppercase font-light text-white italic">Imperial Dispatch</h3>
+                    <div className="h-[1px] w-12 bg-[#b38f4a]/30 mx-auto"></div>
                  </div>
 
-                 <p className="text-[9px] tracking-[0.3em] uppercase text-[#b38f4a]/60 italic font-medium">Invite others to the Imperial Presence</p>
-
-                 <div className="flex justify-center gap-6 py-4 border-y border-[#b38f4a]/10">
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><MessageCircle className="w-6 h-6" /></button>
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><Send className="w-6 h-6" /></button>
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><Share2 className="w-6 h-6" /></button>
+                 <div className="py-10 border-y border-[#b38f4a]/10">
+                    <p className="text-[10px] tracking-[0.4em] uppercase text-[#b38f4a]/60 leading-relaxed max-w-xs mx-auto">Propagate the digital sovereignty. Invite others to witness the ascension.</p>
                  </div>
 
-                 <button 
-                    onClick={copyToClipboard}
-                    className="w-full py-4 bg-white/5 border border-[#b38f4a]/30 text-[#b38f4a] text-[10px] tracking-[0.4em] uppercase font-black flex items-center justify-center gap-3 hover:bg-[#b38f4a]/10 transition-all active:scale-95"
-                 >
-                    {copied ? <><Check className="w-3 h-3" /> Copied to Ledger</> : <><Copy className="w-3 h-3" /> Copy Sovereign Link</>}
-                 </button>
+                 <div className="space-y-4">
+                    <button 
+                       onClick={copyToClipboard}
+                       className="w-full py-6 bg-transparent border border-[#b38f4a]/20 text-[#b38f4a] text-[10px] tracking-[0.6em] uppercase font-black hover:bg-[#b38f4a]/5 hover:border-[#b38f4a] transition-all flex items-center justify-center gap-4 group"
+                    >
+                       {copied ? <><Check className="w-4 h-4" /> Link Secured</> : <><Copy className="w-4 h-4 group-hover:scale-110 transition-transform" /> Copy Sovereign Link</>}
+                    </button>
+                    <p className="text-[7px] tracking-[0.3em] uppercase text-white/20 font-bold">Protocol v1.0 — Sovereign Network Access</p>
+                 </div>
               </div>
            </div>
         </div>
