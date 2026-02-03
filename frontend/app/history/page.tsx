@@ -61,7 +61,7 @@ function HistoryContent() {
     }
   }, [searchParams]);
 
-  // --- שליפת נתונים: השגיאה תוקנה כאן ---
+  // --- שליפת נתונים: ללא שינוי לוגי ---
   useEffect(() => {
     async function fetchData() {
       try {
@@ -76,7 +76,6 @@ function HistoryContent() {
         setLoading(false);
       }
     }
-    // המילה fetch() המיותרת הוסרה מכאן
     fetchData();
   }, []);
 
@@ -104,7 +103,7 @@ function HistoryContent() {
         <div className="h-[1px] w-16 bg-gradient-to-r from-transparent via-[#b38f4a]/30 to-transparent mx-auto mt-8"></div>
       </header>
 
-      {/* סקשן השליטים - מרווחים מהודקים */}
+      {/* סקשן השליטים - תמונות בצבע מלא */}
       <section className="max-w-6xl mx-auto mb-32">
         <div className="flex flex-col items-center mb-16">
           <h2 className="text-[11px] tracking-[0.8em] uppercase text-[#b38f4a]/70 font-bold mb-3 pl-[0.8em]">The Sovereign Lineage</h2>
@@ -117,7 +116,8 @@ function HistoryContent() {
           ) : sovereigns.map((sov, index) => (
             <div key={sov.id} className="group relative flex flex-col items-center">
               <div className="relative overflow-hidden aspect-[4/5] w-full border border-[#b38f4a]/20 group-hover:border-[#b38f4a]/60 transition-all duration-1000 bg-[#050505] shadow-2xl">
-                <img src={sov.image_url} alt={sov.name} className="w-full h-full object-cover grayscale opacity-50 group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000" />
+                {/* התיקון בוצע כאן: הוסרו ה-grayscale וה-opacity */}
+                <img src={sov.image_url} alt={sov.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-1000" />
                 {index === 0 && (
                   <div className="absolute top-0 right-0 px-4 py-1.5 bg-[#b38f4a] text-[#000] text-[7px] tracking-[0.3em] uppercase font-black shadow-lg">
                     Current
