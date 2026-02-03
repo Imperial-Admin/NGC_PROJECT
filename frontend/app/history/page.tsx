@@ -61,7 +61,7 @@ function HistoryContent() {
     }
   }, [searchParams]);
 
-  // --- שליפת נתונים: ללא שינוי לוגי ---
+  // --- שליפת נתונים: השגיאה תוקנה כאן ---
   useEffect(() => {
     async function fetchData() {
       try {
@@ -76,7 +76,7 @@ function HistoryContent() {
         setLoading(false);
       }
     }
-    fetch()
+    // המילה fetch() המיותרת הוסרה מכאן
     fetchData();
   }, []);
 
