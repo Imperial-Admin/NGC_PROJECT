@@ -31,16 +31,14 @@ function ImperialUploadContent() {
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
-  // --- לוגיקת הצלחה: זיקוקים, כתר ומוזיקה ---
   useEffect(() => {
     const paymentStatus = searchParams.get('payment');
     if (paymentStatus === 'success') {
       setStatus('success');
       setIsShaking(true);
-      setIsCoronating(true); // הפעלת אפקט הכתר
+      setIsCoronating(true);
       window.history.replaceState({}, '', window.location.pathname);
 
-      // הפעלת המוזיקה המלכותית
       const audio = new Audio('/victory.mp3');
       audio.volume = 0.6;
       audio.play().catch(e => console.log("Audio wait for interaction:", e));
@@ -50,7 +48,6 @@ function ImperialUploadContent() {
     }
   }, [searchParams]);
 
-  // לוגיקת הזיקוקים (ללא שינוי)
   useEffect(() => {
     if (status !== 'success') return;
     const canvas = canvasRef.current; if (!canvas) return;
@@ -136,9 +133,11 @@ function ImperialUploadContent() {
   const handleUpload = async () => {
     if (!croppedImage) return;
     sessionStorage.setItem('imp_img', croppedImage);
-    sessionStorage.setItem('imp_title', title);
-    sessionStorage.setItem('imp_subtitle', subtitle);
-    router.push('/checkout');
+    sessionStorage.setItem('imp_name', title); 
+    sessionStorage.setItem('imp_msg', subtitle);
+    
+    // תיקון סדר: עובר לדף הזנת השם הסופי (Checkout)
+    router.push('/checkout'); 
   };
 
   return (

@@ -1,10 +1,8 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-// עדכון ייבוא: הוספנו את useSearchParams
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation'; 
 import { ArrowLeft, Crown, ShieldCheck, Gem } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-// ייבוא ספריית הזיקוקים
 import confetti from 'canvas-confetti';
 
 interface Sovereign {
@@ -21,9 +19,8 @@ interface Tribute {
   message?: string;
 }
 
-export default function HistoryPage() {
+function HistoryContent() {
   const router = useRouter();
-  // הפעלת החיישן שבודק את כתובת ה-URL
   const searchParams = useSearchParams();
   const [sovereigns, setSovereigns] = useState<Sovereign[]>([]);
   const [tributes, setTributes] = useState<Tribute[]>([]);
@@ -31,24 +28,30 @@ export default function HistoryPage() {
 
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
-  // אפקט להפעלת הזיקוקים ברגע שהדף נטען עם הפרמטר הנכון
+  // --- אפקט הניצחון: מוזיקה וזיקוקים ---
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
-      const end = Date.now() + 5 * 1000; // חגיגה של 5 שניות
+      // 1. הפעלת המוזיקה המלכותית
+      const audio = new Audio('/victory.mp3'); 
+      audio.volume = 0.6;
+      audio.play().catch(() => console.log("User interaction required for audio"));
+
+      // 2. הפעלת הזיקוקים
+      const end = Date.now() + 5 * 1000;
       const colors = ['#b38f4a', '#e6c68b', '#ffffff', '#7a5210'];
 
       (function frame() {
         confetti({
-          particleCount: 3,
+          particleCount: 4,
           angle: 60,
-          spread: 55,
+          spread: 60,
           origin: { x: 0, y: 0.6 },
           colors: colors
         });
         confetti({
-          particleCount: 3,
+          particleCount: 4,
           angle: 120,
-          spread: 55,
+          spread: 60,
           origin: { x: 1, y: 0.6 },
           colors: colors
         });
@@ -69,7 +72,7 @@ export default function HistoryPage() {
         if (sovData) setSovereigns(sovData);
         if (tribData) setTributes(tribData);
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.error("Archive Access Error:", err);
       } finally {
         setLoading(false);
       }
@@ -79,10 +82,8 @@ export default function HistoryPage() {
 
   return (
     <main className="min-h-screen w-full bg-[#050505] text-white font-serif p-8 md:p-24 relative overflow-hidden">
-      {/* אלמנטים עיצוביים ברקע */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[#b38f4a]/5 blur-[120px] pointer-events-none" />
       
-      {/* כפתור חזרה מעוצב */}
       <button 
         onClick={() => router.push('/')}
         className="group fixed top-12 left-12 flex items-center gap-3 text-[#b38f4a]/60 hover:text-[#e6c68b] transition-all z-50 px-4 py-2 border border-[#b38f4a]/10 hover:border-[#b38f4a]/40 bg-black/40 backdrop-blur-md"
@@ -91,7 +92,6 @@ export default function HistoryPage() {
         <span className="text-[10px] tracking-[0.5em] uppercase font-bold">Return to Throne</span>
       </button>
 
-      {/* כותרת ענקית */}
       <header className="relative mb-32 text-center">
         <div className="flex justify-center mb-6 text-[#b38f4a]">
           <Crown size={40} strokeWidth={1} className="animate-pulse" />
@@ -106,7 +106,6 @@ export default function HistoryPage() {
         </div>
       </header>
 
-      {/* סקשן הריבונים - עיצוב כרטיסיות */}
       <section className="max-w-7xl mx-auto mb-40">
         <div className="flex items-center gap-4 mb-16 border-b border-[#b38f4a]/10 pb-6">
           <ShieldCheck className="text-[#b38f4a]" size={20} />
@@ -132,7 +131,6 @@ export default function HistoryPage() {
         </div>
       </section>
 
-      {/* סקשן קיר הנאמנות - עיצוב הלבבות */}
       <section className="max-w-7xl mx-auto">
         <div className="flex items-center gap-4 mb-16 border-b border-[#b38f4a]/10 pb-6">
           <Gem className="text-[#b38f4a]" size={20} />
@@ -153,5 +151,13 @@ export default function HistoryPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function HistoryPage() {
+  return (
+    <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center text-[#b38f4a]">ACCESSING ARCHIVES...</div>}>
+      <HistoryContent />
+    </Suspense>
   );
 }

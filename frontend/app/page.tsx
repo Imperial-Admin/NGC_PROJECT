@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Copy, Check, Globe, Share2, MessageCircle, Send } from 'lucide-react';
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const [buyers, setBuyers] = useState(0);
   const [likes, setLikes] = useState(756567);
@@ -11,9 +10,8 @@ export default function Home() {
   const [isShaking, setIsShaking] = useState(false);
   const [isHeartBeating, setIsHeartBeating] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   
+  // לוגיקת צופים ריאליסטית
   const MIN_VIEWERS = 123452; 
   const TARGET_BASE = 124500; 
   const [onlineViewers, setOnlineViewers] = useState(TARGET_BASE); 
@@ -88,7 +86,8 @@ export default function Home() {
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     window.addEventListener('resize', resize); resize();
     class Particle {
-      x: number; y: number; vx: number; vy: number; alpha: number; color: string; gravity: number; friction: number; size: number; decay: number;
+      x: number; y: number; vx: number; vy: number; alpha: number; color: string; 
+      gravity: number; friction: number; size: number; decay: number;
       constructor(x: number, y: number, color: string) {
         this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 10 + 5;
         this.vx = Math.cos(angle) * velocity; this.vy = Math.sin(angle) * velocity;
@@ -116,25 +115,10 @@ export default function Home() {
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
   }, []);
 
+  // תיקון קישור 1: מוביל ל-UPLOAD
   const handleClaim = () => router.push('/upload');
-  const triggerTribute = () => router.push('/checkout?source=tribute');
-
-  const handleShareClick = async () => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile && navigator.share) {
-      try {
-        await navigator.share({ title: 'NGC', text: 'The Sovereign Asset', url: window.location.href });
-      } catch (err) { setIsShareOpen(true); }
-    } else {
-      setIsShareOpen(true);
-    }
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  // תיקון קישור 2: מוביל ל-UPLOAD (כדי לשמור על הסדר שביקשת)
+  const triggerTribute = () => router.push('/upload');
 
   const handleLike = () => {
     setLikes(prev => prev + 1); setIsHeartBeating(true);
@@ -190,6 +174,7 @@ export default function Home() {
 
       <div className={`w-full h-full flex flex-col items-center justify-start z-10 pt-36 transition-opacity duration-1000 ${isCoronating ? 'opacity-10' : 'opacity-100'}`}>
         <div className="flex items-start justify-center gap-10 w-[98vw] max-w-[1750px] relative h-[50vh]">
+          
           <div className="hidden xl:flex flex-col w-64 h-full relative overflow-visible">
              <div className="flex flex-col h-full rounded-sm border border-[#b38f4a]/30 relative overflow-hidden shadow-2xl" style={{ backgroundImage: `linear-gradient(110deg, #2a1a05, #1a1103, #2a1a05)`, padding: '2px' }}>
                 <div className="bg-black/90 h-full w-full p-4 flex flex-col border border-[#b38f4a]/10">
@@ -212,7 +197,7 @@ export default function Home() {
                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b38f4a] font-bold">Endorse the</span>
                    <span className="text-[12px] uppercase tracking-[0.3em] text-white font-black leading-none">Imperial Asset</span>
                 </div>
-                <button onClick={handleLike} className={`absolute right-0 top-0 transform pointer-events-auto transition-transform duration-300 active:scale-90 outline-none ${isHeartBeating ? 'scale-125' : 'hover:scale-110'}`}>
+                <button onClick={handleLike} className={`absolute right-0 top-0 transform transition-transform duration-300 active:scale-90 outline-none ${isHeartBeating ? 'scale-125' : 'hover:scale-110'}`}>
                    <span className="text-4xl drop-shadow-[0_0_15px_rgba(255,0,0,0.6)]" style={{ color: '#FF0000' }}>❤</span>
                 </button>
              </div>
@@ -253,7 +238,7 @@ export default function Home() {
                 </div>
                 <div className="flex-1 overflow-hidden relative">
                    <div className="absolute inset-0 flex flex-col animate-marquee-smooth will-change-transform">
-                      {[...tributes, ...tributes].map((item, i) => (
+                     {[...tributes, ...tributes].map((item, i) => (
                         <div key={i} className="flex flex-col space-y-1 mb-8 shrink-0">
                           <div className="flex items-center justify-between w-full">
                             <p className="text-[10px] text-white/80 font-bold tracking-widest uppercase truncate max-w-[80%]">✦ {item.name}</p>
@@ -290,37 +275,12 @@ export default function Home() {
       </div>
 
       <div className="absolute bottom-4 left-10 flex items-center gap-6 z-20">
-         <button onClick={handleShareClick} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
+         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button onClick={() => router.push('/history')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
-
-      {isShareOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 transition-all duration-500">
-           <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setIsShareOpen(false)}></div>
-           <div className="relative w-full max-w-lg bg-black border border-[#b38f4a]/30 p-12 shadow-[0_0_100px_rgba(0,0,0,1)] rounded-sm animate-in zoom-in-95 duration-500 overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-[1px]" style={{ background: `linear-gradient(to right, transparent, #b38f4a, transparent)` }}></div>
-              <button onClick={() => setIsShareOpen(false)} className="absolute top-6 right-6 text-white/20 hover:text-[#b38f4a] transition-colors"><X className="w-6 h-6" strokeWidth={1} /></button>
-              <div className="text-center space-y-10">
-                 <div className="space-y-4">
-                    <Share2 className="w-8 h-8 text-[#b38f4a] mx-auto opacity-50" strokeWidth={1} />
-                    <h3 className="text-xl tracking-[0.6em] uppercase font-light text-white italic">Imperial Dispatch</h3>
-                    <div className="h-[1px] w-12 bg-[#b38f4a]/30 mx-auto"></div>
-                 </div>
-                 <div className="py-10 border-y border-[#b38f4a]/10 text-[10px] tracking-[0.4em] uppercase text-[#b38f4a]/60 italic font-medium max-w-xs mx-auto">Propagate the digital sovereignty. Invite others to witness the ascension.</div>
-                 <div className="flex justify-center gap-6 py-4">
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><MessageCircle className="w-6 h-6" /></button>
-                    <button className="text-[#b38f4a] hover:text-white hover:scale-125 transition-all"><Send className="w-6 h-6" /></button>
-                 </div>
-                 <button onClick={copyToClipboard} className="w-full py-6 bg-transparent border border-[#b38f4a]/20 text-[#b38f4a] text-[10px] tracking-[0.6em] uppercase font-black hover:bg-[#b38f4a]/5 hover:border-[#b38f4a] transition-all flex items-center justify-center gap-4 group">
-                    {copied ? <><Check className="w-4 h-4" /> Link Secured</> : <><Copy className="w-4 h-4 group-hover:scale-110 transition-transform" /> Copy Sovereign Link</>}
-                 </button>
-              </div>
-           </div>
-        </div>
-      )}
 
       <style>{`
         @keyframes slideUpGold { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -343,5 +303,13 @@ export default function Home() {
         .animate-proclamation { animation: proclamation 4s ease-in-out forwards; }
       `}</style>
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
