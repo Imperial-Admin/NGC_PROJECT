@@ -1,6 +1,4 @@
 "use client";
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
 import React, { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient';
