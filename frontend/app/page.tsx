@@ -1,4 +1,5 @@
 "use client";
+export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 import React, { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -217,27 +218,27 @@ function HomeContent() {
           <div className="hidden xl:flex flex-col w-64 h-full relative overflow-visible">
              <div className="flex flex-col h-full rounded-sm border border-[#b38f4a]/30 relative overflow-hidden shadow-2xl" style={{ backgroundImage: `linear-gradient(110deg, #2a1a05, #1a1103, #2a1a05)`, padding: '2px' }}>
                 <div className="bg-black/90 h-full w-full p-4 flex flex-col border border-[#b38f4a]/10">
-                   <h4 className="text-[10px] tracking-[0.3em] uppercase text-[#e6c68b] border-b border-[#b38f4a]/20 pb-2 mb-2 font-bold">Global Pulse</h4>
-                   <div className="mb-4 py-2 border-b border-[#b38f4a]/10 flex flex-col items-start">
-                      <p className="text-[8px] uppercase tracking-widest text-[#b38f4a] opacity-70">The Royal Pulse</p>
-                      <p className="text-lg font-mono font-black text-white tracking-tighter">{likes.toLocaleString()}</p>
-                   </div>
-                   <div className="flex-1 overflow-hidden relative flex flex-col justify-end">
-                      <div className="flex flex-col gap-2">
-                         {activities.map((item) => (
-                           <p key={item.id} className={`text-[9px] h-6 tracking-widest opacity-90 italic flex items-center animate-slide-up-gold ${item.isNew ? 'text-[#D4AF37] font-bold' : 'text-white'}`}>{item.text}</p>
-                         ))}
-                      </div>
-                   </div>
+                    <h4 className="text-[10px] tracking-[0.3em] uppercase text-[#e6c68b] border-b border-[#b38f4a]/20 pb-2 mb-2 font-bold">Global Pulse</h4>
+                    <div className="mb-4 py-2 border-b border-[#b38f4a]/10 flex flex-col items-start">
+                       <p className="text-[8px] uppercase tracking-widest text-[#b38f4a] opacity-70">The Royal Pulse</p>
+                       <p className="text-lg font-mono font-black text-white tracking-tighter">{likes.toLocaleString()}</p>
+                    </div>
+                    <div className="flex-1 overflow-hidden relative flex flex-col justify-end">
+                       <div className="flex flex-col gap-2">
+                          {activities.map((item) => (
+                            <p key={item.id} className={`text-[9px] h-6 tracking-widest opacity-90 italic flex items-center animate-slide-up-gold ${item.isNew ? 'text-[#D4AF37] font-bold' : 'text-white'}`}>{item.text}</p>
+                          ))}
+                       </div>
+                    </div>
                 </div>
              </div>
              <div className="absolute -bottom-[132px] left-0 w-64 h-32 pointer-events-auto">
                 <div className="flex flex-col text-left absolute left-0 top-0">
-                   <span className="text-[10px] uppercase tracking-[0.2em] text-[#b38f4a] font-bold">Endorse the</span>
-                   <span className="text-[12px] uppercase tracking-[0.3em] text-white font-black leading-none">Imperial Asset</span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#b38f4a] font-bold">Endorse the</span>
+                    <span className="text-[12px] uppercase tracking-[0.3em] text-white font-black leading-none">Imperial Asset</span>
                 </div>
                 <button onClick={handleLike} className={`absolute right-0 top-0 transform transition-transform duration-300 active:scale-90 outline-none ${isHeartBeating ? 'scale-125' : 'hover:scale-110'}`}>
-                   <span className="text-4xl drop-shadow-[0_0_15px_rgba(255,0,0,0.6)]" style={{ color: '#FF0000' }}>❤</span>
+                    <span className="text-4xl drop-shadow-[0_0_15px_rgba(255,0,0,0.6)]" style={{ color: '#FF0000' }}>❤</span>
                 </button>
              </div>
           </div>
