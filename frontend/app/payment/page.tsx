@@ -1,14 +1,22 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 // שימוש באייקונים מעודנים למראה יוקרתי
 import { CreditCard, Bitcoin, ShieldCheck, Crown } from 'lucide-react';
 
 export default function PaymentMethodPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   
   // הגדרת הזהב המלכותי המדויק שלך - ללא שינוי
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // מניעת שגיאות Hydration ושיפור מהירות הטעינה
+  if (!mounted) return null;
 
   return (
     <main className="h-screen w-full bg-[#050505] text-white font-serif flex flex-col items-center justify-center p-4 relative overflow-hidden">

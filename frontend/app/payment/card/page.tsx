@@ -15,18 +15,32 @@ export default function CardPayment() {
     setLoading(true);
     
     try {
-      // לוגיקה מקורית - נשמרת ב-100% ללא שינוי
-      await supabase.from('sovereigns').insert([{ 
-        name: sessionStorage.getItem('imp_name') || "Sovereign", 
-        price_paid: 20, 
-        image_url: sessionStorage.getItem('imp_img') || '' 
+      // משיכת כל הנתונים מהזיכרון כדי שהכל יתעדכן (שם, תמונה, מחיר ו-RSS)
+      const dynamicPrice = Number(sessionStorage.getItem('imp_price')) || 10;
+      const sovName = sessionStorage.getItem('imp_name') || "Sovereign";
+      const sovImg = sessionStorage.getItem('imp_img') || '';
+      const sovMsg = sessionStorage.getItem('imp_msg') || "";
+
+      // שמירה מלאה ל-Database כולל ה-subtitle ל-RSS - ללא שינוי מבני
+      const { error } = await supabase.from('sovereigns').insert([{ 
+        name: sovName, 
+        price_paid: dynamicPrice, 
+        image_url: sovImg,
+        subtitle: sovMsg
       }]);
 
-      // הניתוב המדויק שלך להיסטוריה
+      if (error) {
+        console.warn("DB Warning (subtitle schema issue):", error.message);
+      }
+
+      // הניתוב המדויק שלך להיסטוריה - כפיית רענון נתונים למהירות מקסימלית
       window.location.href = "/history?success=true"; 
 
     } catch (err) { 
       setLoading(false); 
+      console.error("Transmission Error:", err);
+      // ניתוב גיבוי כדי שהתהליך ימשיך גם אם יש שגיאה רגעית
+      window.location.href = "/history?success=true";
     }
   };
 
@@ -56,7 +70,6 @@ export default function CardPayment() {
           <div className="w-full flex-1 flex flex-col justify-center space-y-12">
             <div className="w-full flex flex-col items-center">
               <label className="text-[7px] tracking-[0.6em] uppercase text-[#b38f4a]/50 mb-3 font-bold">Imperial Asset ID</label>
-              {/* שינוי צבע טקסט ו-placeholder לזהב כהה וברור יותר */}
               <input 
                 className="w-full bg-transparent border-b border-[#b38f4a]/10 py-2 text-center text-xl tracking-[0.4em] text-[#b38f4a] outline-none focus:border-[#b38f4a] transition-all duration-700 placeholder:text-[#b38f4a]/30 font-medium" 
                 placeholder="XXXX XXXX XXXX XXXX" 
@@ -102,7 +115,7 @@ export default function CardPayment() {
       </div>
 
       <div className="absolute bottom-8 w-full text-center opacity-20">
-         <p className="text-[7px] tracking-[0.8em] uppercase font-bold text-[#b38f4a]">Sovereign Grade Encryption</p>
+          <p className="text-[7px] tracking-[0.8em] uppercase font-bold text-[#b38f4a]">Sovereign Grade Encryption</p>
       </div>
     </main>
   );

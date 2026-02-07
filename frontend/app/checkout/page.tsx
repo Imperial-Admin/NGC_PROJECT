@@ -1,10 +1,19 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [price, setPrice] = useState("10"); // ברירת מחדל
+
+  // סנכרון נתונים מהדף הקודם (Upload) מבלי לשנות את העיצוב
+  useEffect(() => {
+    const savedName = sessionStorage.getItem('imp_name');
+    const savedPrice = sessionStorage.getItem('imp_price');
+    if (savedName) setName(savedName);
+    if (savedPrice) setPrice(savedPrice);
+  }, []);
 
   // הגדרת הזהב המלכותי המדויק שלך
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
@@ -45,7 +54,7 @@ export default function CheckoutPage() {
             className="w-full py-6 text-black font-black uppercase tracking-[0.5em] text-xs shadow-[0_10px_40px_rgba(0,0,0,0.5)] hover:brightness-125 active:scale-[0.97] transition-all duration-300 border border-[#e6c68b]/20"
             style={{ backgroundImage: imperialGold }}
           >
-            PAY 20 GOLD & RULE
+            PAY ${price} & RULE
           </button>
         </form>
       </div>

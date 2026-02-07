@@ -25,6 +25,8 @@ function ImperialUploadContent() {
   const [subtitle, setSubtitle] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
+  const [dynamicPrice, setDynamicPrice] = useState(10);
+  const [mounted, setMounted] = useState(false); // מבטיח מהירות מקסימלית ללא שגיאות
   
   const imgRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,6 +34,16 @@ function ImperialUploadContent() {
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
   useEffect(() => {
+    setMounted(true);
+    // משיכת כמות הקונים מה-Database כדי לחשב את המחיר הנוכחי (10% תוספת)
+    const fetchCurrentPrice = async () => {
+      const { count } = await supabase.from('sovereigns').select('*', { count: 'exact', head: true });
+      if (count !== null) {
+        setDynamicPrice(Math.round(10 * Math.pow(1.1, count)));
+      }
+    };
+    fetchCurrentPrice();
+
     const paymentStatus = searchParams.get('payment');
     if (paymentStatus === 'success') {
       setStatus('success');
@@ -41,7 +53,7 @@ function ImperialUploadContent() {
 
       const audio = new Audio('/victory.mp3');
       audio.volume = 0.6;
-      audio.play().catch(e => console.log("Audio wait for interaction:", e));
+      audio.play().catch(e => console.log("Audio interaction wait"));
 
       setTimeout(() => setIsShaking(false), 1000);
       setTimeout(() => setIsCoronating(false), 8000);
@@ -49,7 +61,7 @@ function ImperialUploadContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (status !== 'success') return;
+    if (status !== 'success' || !mounted) return;
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d', { alpha: true }); if (!ctx) return;
     let particles: any[] = []; let animationFrame: number;
@@ -88,7 +100,7 @@ function ImperialUploadContent() {
     const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2.5;
     for (let i = 0; i < 15; i++) { setTimeout(() => createFirework(centerX + (Math.random() - 0.5) * 400, centerY + (Math.random() - 0.5) * 300), i * 300); }
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
-  }, [status]);
+  }, [status, mounted]);
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files?.[0]) {
@@ -135,10 +147,12 @@ function ImperialUploadContent() {
     sessionStorage.setItem('imp_img', croppedImage);
     sessionStorage.setItem('imp_name', title); 
     sessionStorage.setItem('imp_msg', subtitle);
+    sessionStorage.setItem('imp_price', dynamicPrice.toString()); // סנכרון מחיר ל-Checkout
     
-    // תיקון סדר: עובר לדף הזנת השם הסופי (Checkout)
     router.push('/checkout'); 
   };
+
+  if (!mounted) return null; // הגנה על המהירות ומניעת שגיאות Hydration
 
   return (
     <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-center overflow-hidden font-serif relative select-none ${isShaking ? 'animate-screen-shake' : ''}`}>
@@ -169,7 +183,7 @@ function ImperialUploadContent() {
             <div className="relative w-[50vw] max-w-[850px] h-[50vh] rounded-lg shadow-2xl shrink-0" style={{ padding: '4px', backgroundImage: imperialGold, boxShadow: `0 30px 60px -15px rgba(0,0,0,1), inset 1px 1px 1px rgba(255, 255, 255, 0.6), inset -2px -2px 4px rgba(0, 0, 0, 0.8)` }}>
                 <div className="absolute bottom-12 -right-4 z-50 w-52 h-14 rounded-sm overflow-hidden flex items-center justify-center animate-price-pulse" style={{ backgroundImage: imperialGold, boxShadow: `0 10px 20px -5px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.8)` }}>
                     {[...Array(4)].map((_, i) => (<div key={i} className={`absolute w-1.5 h-1.5 rounded-full bg-[#2a1a05] ${i===0?'top-1 left-1':i===1?'top-1 right-1':i===2?'bottom-1 left-1':'bottom-1 right-1'}`}></div>))}
-                    <h3 className="text-2xl font-black text-[#1a1103] tracking-tighter">$10</h3>
+                    <h3 className="text-2xl font-black text-[#1a1103] tracking-tighter">${dynamicPrice}</h3>
                 </div>
                 <div className="h-full w-full rounded-sm overflow-hidden relative border-[1px] border-[#D4AF37]/20 pb-16 bg-black flex items-center justify-center pt-2">
                   <ReactCrop crop={crop} onChange={c => setCrop(c)} onComplete={c => setCompletedCrop(c)} className="flex items-center justify-center">
@@ -203,7 +217,7 @@ function ImperialUploadContent() {
             <div className="relative w-[50vw] max-w-[850px] h-[50vh] rounded-lg shadow-2xl select-none shrink-0" style={{ padding: '4px', backgroundImage: imperialGold, boxShadow: `0 30px 60px -15px rgba(0,0,0,1), inset 1px 1px 1px rgba(255, 255, 255, 0.6), inset -2px -2px 4px rgba(0, 0, 0, 0.8)` }}>
                 <div className="absolute bottom-12 -right-4 z-50 w-52 h-14 rounded-sm overflow-hidden flex items-center justify-center animate-price-pulse" style={{ backgroundImage: imperialGold, boxShadow: `0 10px 20px -5px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.8)` }}>
                     {[...Array(4)].map((_, i) => (<div key={i} className={`absolute w-1.5 h-1.5 rounded-full bg-[#2a1a05] ${i===0?'top-1 left-1':i===1?'top-1 right-1':i===2?'bottom-1 left-1':'bottom-1 right-1'}`}></div>))}
-                    <h3 className="text-2xl font-black text-[#1a1103] tracking-tighter">$10</h3>
+                    <h3 className="text-2xl font-black text-[#1a1103] tracking-tighter">${dynamicPrice}</h3>
                 </div>
                 <div className="h-full w-full rounded-sm overflow-hidden relative border-[1px] border-[#D4AF37]/20 pb-14 bg-black">
                   <img src={croppedImage!} className="w-full h-full object-contain contrast-115 brightness-95" />
