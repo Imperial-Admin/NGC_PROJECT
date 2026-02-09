@@ -10,15 +10,19 @@ export default function ImperialSharePage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [siteUrl, setSiteUrl] = useState("https://ngc-project.vercel.app"); 
   
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
   
-  // כתובת לבדיקה מקומית
-  const siteUrl = "http://localhost:3000"; 
   // טקסט יוקרתי שיופיע מעל הלינק בשיתוף
   const shareText = "Behold the Sovereign Asset. A new era of digital legacy begins.";
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { 
+    setMounted(true); 
+    if (typeof window !== 'undefined') {
+      setSiteUrl(window.location.origin);
+    }
+  }, []);
 
   const copyLink = () => {
     navigator.clipboard.writeText(siteUrl);
@@ -83,7 +87,6 @@ export default function ImperialSharePage() {
           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#b38f4a]/20 to-transparent my-10"></div>
 
           <div className="flex gap-8 items-center justify-center mb-10 w-full px-4">
-            {/* WhatsApp - מוסיף טקסט יפה לפני הלינק */}
             <button onClick={() => shareAction(`https://wa.me/?text=${encodeURIComponent(shareText + " " + siteUrl)}`)} className="text-[#b38f4a]/40 hover:text-white transition-all group">
               <MessageCircle size={20} strokeWidth={1.5} />
             </button>

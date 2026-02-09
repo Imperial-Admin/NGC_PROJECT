@@ -20,10 +20,10 @@ function HomeContent() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // State לניהול הנתונים הדינמיים מה-Database
+  // State לניהול הנתונים הדינמיים מה-Database - נוקה מהתמונה הישנה בזהירות
   const [currentSovereign, setCurrentSovereign] = useState<any>({
     name: "ALEXANDER VON BERG",
-    image_url: "/model.jpg",
+    image_url: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
     subtitle: "Success is a choice"
   });
 
@@ -218,8 +218,8 @@ function HomeContent() {
                 <div className="bg-black/90 h-full w-full p-4 flex flex-col border border-[#b38f4a]/10">
                     <h4 className="text-[10px] tracking-[0.3em] uppercase text-[#e6c68b] border-b border-[#b38f4a]/20 pb-2 mb-2 font-bold">Global Pulse</h4>
                     <div className="mb-4 py-2 border-b border-[#b38f4a]/10 flex flex-col items-start">
-                       <p className="text-[8px] uppercase tracking-widest text-[#b38f4a] opacity-70">The Royal Pulse</p>
-                       <p className="text-lg font-mono font-black text-white tracking-tighter">{likes.toLocaleString()}</p>
+                        <p className="text-[8px] uppercase tracking-widest text-[#b38f4a] opacity-70">The Royal Pulse</p>
+                        <p className="text-lg font-mono font-black text-white tracking-tighter">{likes.toLocaleString()}</p>
                     </div>
                     <div className="flex-1 overflow-hidden relative flex flex-col justify-end">
                        <div className="flex flex-col gap-2">
@@ -249,7 +249,7 @@ function HomeContent() {
                 <h3 className="text-xl md:text-2xl font-black tracking-wider text-[#1a1103] drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">{currentPrice}</h3>
             </div>
             <div className="h-full w-full rounded-sm overflow-hidden relative border-[1px] border-[#D4AF37]/20 pb-14" style={{ backgroundColor: '#000000' }}>
-              <img src={currentSovereign.image_url || "/model.jpg"} alt="NGC" className="w-full h-full object-contain relative z-10 contrast-115 brightness-95" />
+              <img src={currentSovereign.image_url} alt="NGC" className="w-full h-full object-contain relative z-10 contrast-115 brightness-95" />
               <div className="absolute bottom-0 left-0 right-0 h-16 z-30 flex items-center justify-center">
                 <div className="w-full h-full backdrop-blur-md bg-black/70 border-t-2 border-[#FBF5B7]/50 shadow-[inset_0_5px_15px_rgba(212,175,55,0.2)] flex flex-col items-center justify-center overflow-hidden">
                     <h2 className="text-sm tracking-[0.3em] uppercase font-black text-[#FBF5B7]">{currentSovereign.name || "The Sovereign"}</h2>
@@ -268,7 +268,7 @@ function HomeContent() {
 
           <div className="hidden xl:flex flex-col w-64 h-full rounded-sm border border-[#b38f4a]/30 relative overflow-visible shadow-2xl" style={{ backgroundImage: `linear-gradient(110deg, #2a1a05, #1a1103, #2a1a05)`, padding: '2px' }}>
              <div className="bg-black/90 h-full w-full p-4 flex flex-col border border-[#b38f4a]/10">
-                <h4 className="text-[10px] tracking-[0.3em] uppercase text-[#e6c68b] border-b border-[#b38f4a]/20 pb-2 mb-2 font-bold">Tribute Ledger</h4>
+                <h4 className="text-[10px] tracking-[0.3em] uppercase text-[#e6c68b] border-b border-[#b38f4a]/20 pb-2 mb-2 font-bold">HEART WALL</h4>
                 <div className="mb-4 py-2 border-b border-[#b38f4a]/10 flex flex-col items-start">
                     <p className="text-[8px] uppercase tracking-widest text-[#b38f4a] opacity-70">The Reigning Sovereign</p>
                     <div className="flex items-center space-x-2 mt-1 w-full overflow-hidden">
@@ -293,7 +293,7 @@ function HomeContent() {
              <div className="absolute -bottom-16 left-0 w-full px-[2px]">
                 <button onClick={triggerTribute} className="relative group w-full active:scale-[0.98] transition-all duration-300 rounded-sm overflow-hidden shadow-lg outline-none">
                     <div className="absolute -inset-1 bg-[#b38f4a] opacity-20 group-hover:opacity-40 blur-sm transition duration-500"></div>
-                    <div className="relative py-3 text-[#1a1103] font-bold uppercase tracking-[0.3em] text-[10px] flex items-center justify-center border border-[#b38f4a]/30 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)]" style={{ backgroundImage: imperialGold }}>Pay Tribute - $10</div>
+                    <div className="relative py-3 text-[#1a1103] font-bold uppercase tracking-[0.3em] text-[10px] flex items-center justify-center border border-[#b38f4a]/30 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)]" style={{ backgroundImage: imperialGold }}>Seal Influence - $10</div>
                 </button>
              </div>
           </div>
@@ -315,7 +315,7 @@ function HomeContent() {
       </div>
 
       <div className="absolute bottom-4 left-10 flex items-center gap-6 z-20">
-         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
+         <button onClick={() => router.push('/share')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>

@@ -104,7 +104,7 @@ function HistoryContent() {
         </button>
         <div className="flex gap-8">
           <button onClick={() => setView('sovereigns')} className={`text-[8px] tracking-[0.4em] uppercase font-bold transition-all ${view === 'sovereigns' ? 'text-[#e6c68b] border-b border-[#e6c68b] pb-1' : 'text-[#b38f4a]/40'}`}>Sovereigns</button>
-          <button onClick={() => setView('tributes')} className={`text-[8px] tracking-[0.4em] uppercase font-bold transition-all ${view === 'tributes' ? 'text-[#e6c68b] border-b border-[#e6c68b] pb-1' : 'text-[#b38f4a]/40'}`}>Tribute Wall</button>
+          <button onClick={() => setView('tributes')} className={`text-[8px] tracking-[0.4em] uppercase font-bold transition-all ${view === 'tributes' ? 'text-[#e6c68b] border-b border-[#e6c68b] pb-1' : 'text-[#b38f4a]/40'}`}>HEART WALL</button>
         </div>
       </nav>
 
@@ -112,7 +112,7 @@ function HistoryContent() {
         <Crown size={22} className="text-[#e6c68b] mx-auto mb-5 opacity-40" />
         <h1 className="flex flex-col items-center justify-center leading-tight">
           <span className="text-3xl md:text-5xl tracking-[0.6em] uppercase font-black text-transparent bg-clip-text bg-gradient-to-b from-[#f3e3ad] to-[#b38f4a] pl-[0.6em]">THE IMPERIAL</span>
-          <span className="text-lg md:text-xl tracking-[1em] font-light text-[#b38f4a]/60 uppercase mt-3 pl-[1em]">{view === 'sovereigns' ? 'ARCHIVES' : 'TRIBUTES'}</span>
+          <span className="text-lg md:text-xl tracking-[1em] font-light text-[#b38f4a]/60 uppercase mt-3 pl-[1em]">{view === 'sovereigns' ? 'ARCHIVES' : <><span style={{ color: '#FF0000' }}>HEART</span> WALL</>}</span>
         </h1>
       </header>
 
@@ -125,7 +125,7 @@ function HistoryContent() {
                   <div className="absolute -top-[68px] left-0 right-0 z-20">
                     <div className="relative h-12 bg-[#4a0404] border-[3px] border-[#b38f4a] shadow-[0_15px_40px_rgba(0,0,0,0.9)] flex items-center justify-center overflow-hidden rounded-[2px]">
                       <div className="absolute inset-1 border border-[#e6c68b]/30"></div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_5s_infinite] pointer-events-none"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_5s_infinite] pointer-none"></div>
                       <span className="relative text-[#e6c68b] text-[9px] tracking-[0.45em] uppercase font-black text-center px-4 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                         IMPERIAL SOVEREIGN
                       </span>
