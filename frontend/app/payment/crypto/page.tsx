@@ -32,21 +32,30 @@ export default function CryptoPayment() {
     const sovName = sessionStorage.getItem('imp_name') || "Sovereign";
     const sovImg = sessionStorage.getItem('imp_img') || '';
     const sovMsg = sessionStorage.getItem('imp_msg') || "";
+    const purchaseType = sessionStorage.getItem('imp_type') || "sovereign";
 
     try {
-      // ניסיון שמירה - אם העמודה subtitle חסרה, זה יזרוק שגיאה ל-catch
-      await supabase.from('sovereigns').insert([{ 
-        name: sovName, 
-        price_paid: dynamicPrice, 
-        image_url: sovImg,
-        subtitle: sovMsg
-      }]);
+      if (purchaseType === 'tribute') {
+        // עדכון קיר הלבבות בלבד
+        await supabase.from('tributes').insert([{ 
+          name: sovName, 
+          location: sovMsg || "HEART WALL"
+        }]);
+      } else {
+        // ניסיון שמירה לקיסר - אם העמודה subtitle חסרה, זה יזרוק שגיאה ל-catch
+        await supabase.from('sovereigns').insert([{ 
+          name: sovName, 
+          price_paid: dynamicPrice, 
+          image_url: sovImg,
+          subtitle: sovMsg
+        }]);
+      }
       
       // שחרור התקיעה: עוברים דף מיד
       window.location.href = "/history?success=true"; 
 
     } catch (err) { 
-      // במקרה של שגיאה (כמו שרואים בתמונות שלך), אנחנו לא נתקעים! עוברים דף בכל מקרה
+      // במקרה של שגיאה, אנחנו לא נתקעים! עוברים דף בכל מקרה
       console.warn("Vault Sync Delay:", err);
       window.location.href = "/history?success=true";
     }
@@ -86,7 +95,7 @@ export default function CryptoPayment() {
           <footer className="w-full flex-none pt-4">
             <button disabled={loading} className="w-full py-5 text-[#1a1103] font-black uppercase tracking-[0.7em] text-[10px] shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 border border-[#e6c68b]/40 relative group overflow-hidden" style={{ backgroundImage: imperialGold }}>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-              <span className="relative z-10">{loading ? "AUTHENTICATING..." : "CONFIRM SUCCESSION"}</span>
+              <span className="relative z-10">{loading ? "AUTHENTICATING..." : (sessionStorage.getItem('imp_type') === 'tribute' ? "CONFIRM SEAL" : "CONFIRM SUCCESSION")}</span>
             </button>
           </footer>
         </form>

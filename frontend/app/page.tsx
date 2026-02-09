@@ -154,7 +154,7 @@ function HomeContent() {
   }, [mounted]);
 
   const handleClaim = () => router.push('/upload');
-  const triggerTribute = () => router.push('/upload');
+  const triggerTribute = () => router.push('/seal');
 
   const handleLike = () => {
     setLikes(prev => prev + 1); setIsHeartBeating(true);

@@ -37,6 +37,11 @@ function HistoryContent() {
     const isSuccess = searchParams?.get('success') === 'true';
     
     if (isSuccess) {
+      // העברה אוטומטית ל-HEART WALL רק אם מדובר בתשלום SEAL
+      if (sessionStorage.getItem('imp_type') === 'tribute') {
+        setView('tributes');
+      }
+
       const url = new URL(window.location.href);
       url.searchParams.delete('success');
       window.history.replaceState({}, '', url.pathname);

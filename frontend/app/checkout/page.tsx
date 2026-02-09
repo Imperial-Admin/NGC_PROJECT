@@ -5,14 +5,17 @@ import { useRouter } from 'next/navigation';
 export default function CheckoutPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("10"); // ברירת מחדל
+  const [price, setPrice] = useState("10"); 
+  const [purchaseType, setPurchaseType] = useState("sovereign");
 
   // סנכרון נתונים מהדף הקודם (Upload) מבלי לשנות את העיצוב
   useEffect(() => {
     const savedName = sessionStorage.getItem('imp_name');
     const savedPrice = sessionStorage.getItem('imp_price');
+    const savedType = sessionStorage.getItem('imp_type');
     if (savedName) setName(savedName);
     if (savedPrice) setPrice(savedPrice);
+    if (savedType) setPurchaseType(savedType);
   }, []);
 
   // הגדרת הזהב המלכותי המדויק שלך
@@ -37,13 +40,13 @@ export default function CheckoutPage() {
         <form onSubmit={handleProceedToPayment} className="space-y-12">
           <div className="flex flex-col items-center">
             <label className="block text-[9px] tracking-[0.6em] uppercase text-[#b38f4a] mb-8 font-bold text-center opacity-80">
-              ESTABLISH YOUR ROYAL IDENTITY
+              {purchaseType === 'tribute' ? 'SEAL YOUR HEART MESSAGE' : 'ESTABLISH YOUR ROYAL IDENTITY'}
             </label>
             <input 
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="WHO SHALL RULE NEXT?..."
+              placeholder={purchaseType === 'tribute' ? 'YOUR NAME ON THE WALL...' : 'WHO SHALL RULE NEXT?...'}
               className="w-full bg-transparent border-b border-[#b38f4a]/20 py-4 text-center text-2xl italic text-[#e6c68b] placeholder:text-[#b38f4a]/20 outline-none focus:border-[#b38f4a] transition-all duration-700 uppercase"
               required
             />
@@ -54,7 +57,7 @@ export default function CheckoutPage() {
             className="w-full py-6 text-black font-black uppercase tracking-[0.5em] text-xs shadow-[0_10px_40px_rgba(0,0,0,0.5)] hover:brightness-125 active:scale-[0.97] transition-all duration-300 border border-[#e6c68b]/20"
             style={{ backgroundImage: imperialGold }}
           >
-            PAY ${price} & RULE
+            PAY ${price} & {purchaseType === 'tribute' ? 'SEAL' : 'RULE'}
           </button>
         </form>
       </div>

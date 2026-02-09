@@ -14,6 +14,7 @@ const supabase = createClient(
 function ImperialUploadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isTribute = searchParams.get('type') === 'tribute';
   
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
@@ -26,7 +27,7 @@ function ImperialUploadContent() {
   const [isShaking, setIsShaking] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
   const [dynamicPrice, setDynamicPrice] = useState(10);
-  const [mounted, setMounted] = useState(false); // מבטיח מהירות מקסימלית ללא שגיאות
+  const [mounted, setMounted] = useState(false); 
   
   const imgRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,8 +36,11 @@ function ImperialUploadContent() {
 
   useEffect(() => {
     setMounted(true);
-    // משיכת כמות הקונים מה-Database כדי לחשב את המחיר הנוכחי (10% תוספת)
     const fetchCurrentPrice = async () => {
+      if (isTribute) {
+        setDynamicPrice(10);
+        return;
+      }
       const { count } = await supabase.from('sovereigns').select('*', { count: 'exact', head: true });
       if (count !== null) {
         setDynamicPrice(Math.round(10 * Math.pow(1.1, count)));
@@ -58,7 +62,7 @@ function ImperialUploadContent() {
       setTimeout(() => setIsShaking(false), 1000);
       setTimeout(() => setIsCoronating(false), 8000);
     }
-  }, [searchParams]);
+  }, [searchParams, isTribute]);
 
   useEffect(() => {
     if (status !== 'success' || !mounted) return;
@@ -147,12 +151,13 @@ function ImperialUploadContent() {
     sessionStorage.setItem('imp_img', croppedImage);
     sessionStorage.setItem('imp_name', title); 
     sessionStorage.setItem('imp_msg', subtitle);
-    sessionStorage.setItem('imp_price', dynamicPrice.toString()); // סנכרון מחיר ל-Checkout
+    sessionStorage.setItem('imp_price', dynamicPrice.toString());
+    sessionStorage.setItem('imp_type', isTribute ? 'tribute' : 'sovereign'); 
     
     router.push('/checkout'); 
   };
 
-  if (!mounted) return null; // הגנה על המהירות ומניעת שגיאות Hydration
+  if (!mounted) return null;
 
   return (
     <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-center overflow-hidden font-serif relative select-none ${isShaking ? 'animate-screen-shake' : ''}`}>
@@ -173,7 +178,7 @@ function ImperialUploadContent() {
         {status === 'idle' && (
           <label className="group relative flex flex-col items-center justify-center w-[400px] h-[250px] border border-[#b38f4a]/30 bg-black/40 cursor-pointer hover:bg-[#b38f4a]/10 transition-all shadow-2xl backdrop-blur-sm">
             <Upload className="w-10 h-10 mb-4 text-[#b38f4a]/40" />
-            <span className="text-[10px] tracking-[0.4em] uppercase text-gray-500 font-bold">Upload Portrait</span>
+            <span className="text-[10px] tracking-[0.4em] uppercase text-gray-500 font-bold">{isTribute ? "Upload Tribute Portrait" : "Upload Portrait"}</span>
             <input type="file" className="hidden" onChange={onSelectFile} accept="image/*" />
           </label>
         )}
@@ -191,9 +196,9 @@ function ImperialUploadContent() {
                   </ReactCrop>
                   <div className="absolute bottom-0 left-0 right-0 h-14 z-30 flex items-center justify-center pointer-events-none">
                     <div className="w-full h-full backdrop-blur-md bg-black/70 border-t-2 border-[#FBF5B7]/50 shadow-[inset_0_5px_15px_rgba(212,175,55,0.2)] flex flex-col items-center justify-center overflow-hidden">
-                        <h2 className="text-[10px] tracking-[0.3em] uppercase font-black text-[#FBF5B7]">Adjust Legacy Frame</h2>
+                        <h2 className="text-[10px] tracking-[0.3em] uppercase font-black text-[#FBF5B7]">{isTribute ? "Adjust Heart Frame" : "Adjust Legacy Frame"}</h2>
                         <div className="h-[1px] w-8 bg-[#D4AF37] my-1 opacity-50"></div>
-                        <div className="relative flex w-full overflow-hidden marquee-seamless"><p className="text-[#D4AF37] text-[8px] tracking-[0.4em] italic uppercase px-4">"Live Forever in Gold"</p></div>
+                        <div className="relative flex w-full overflow-hidden marquee-seamless"><p className="text-[#D4AF37] text-[8px] tracking-[0.4em] italic uppercase px-4">{isTribute ? '"Seal Your Love in Gold"' : '"Live Forever in Gold"'}</p></div>
                     </div>
                   </div>
                 </div>
@@ -205,10 +210,10 @@ function ImperialUploadContent() {
               <label className="text-[9px] tracking-[0.3em] uppercase text-[#b38f4a]/60 font-bold italic cursor-pointer">Change Portrait<input type="file" className="hidden" onChange={onSelectFile} accept="image/*" /></label>
             </div>
             <div className="w-full max-w-md space-y-4">
-              <div className="relative"><input type="text" placeholder="NAME OF THE SOVEREIGN" value={title} maxLength={15} onChange={e => setTitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 pr-10 text-center focus:outline-none focus:border-[#b38f4a] text-xs tracking-[0.4em] uppercase text-white font-bold" /><span className="absolute right-0 bottom-2 text-[7px] text-[#b38f4a]/40 italic">{title.length}/15</span></div>
-              <div className="relative"><input type="text" placeholder="YOUR LEGACY MESSAGE" value={subtitle} maxLength={100} onChange={e => setSubtitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 pr-12 text-center focus:outline-none focus:border-[#b38f4a] text-[10px] tracking-[0.3em] uppercase text-white italic" /><span className="absolute right-0 bottom-2 text-[7px] text-[#b38f4a]/40 italic">{subtitle.length}/100</span></div>
+              <div className="relative"><input type="text" placeholder={isTribute ? "NAME FOR THE HEART WALL" : "NAME OF THE SOVEREIGN"} value={title} maxLength={15} onChange={e => setTitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 pr-10 text-center focus:outline-none focus:border-[#b38f4a] text-xs tracking-[0.4em] uppercase text-white font-bold" /><span className="absolute right-0 bottom-2 text-[7px] text-[#b38f4a]/40 italic">{title.length}/15</span></div>
+              <div className="relative"><input type="text" placeholder={isTribute ? "YOUR HEART MESSAGE" : "YOUR LEGACY MESSAGE"} value={subtitle} maxLength={100} onChange={e => setSubtitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 pr-12 text-center focus:outline-none focus:border-[#b38f4a] text-[10px] tracking-[0.3em] uppercase text-white italic" /><span className="absolute right-0 bottom-2 text-[7px] text-[#b38f4a]/40 italic">{subtitle.length}/100</span></div>
             </div>
-            <button onClick={generateCroppedImg} disabled={!title} className="w-[320px] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl active:scale-95" style={{ backgroundImage: imperialGold }}>Review Ascension</button>
+            <button onClick={generateCroppedImg} disabled={!title} className="w-[320px] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl active:scale-95" style={{ backgroundImage: imperialGold }}>{isTribute ? "Review Tribute" : "Review Ascension"}</button>
           </div>
         )}
 
@@ -231,7 +236,7 @@ function ImperialUploadContent() {
             <div className="flex gap-6 w-[400px] mt-12">
               <button onClick={() => setStatus('details')} className="flex-1 py-4 border border-[#b38f4a]/30 text-[#b38f4a] uppercase text-[10px] font-bold">Edit</button>
               <button onClick={handleUpload} className="flex-[2] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl active:scale-95 transition-all" style={{ backgroundImage: imperialGold }}>
-                <Shield className="mr-2 inline w-4 h-4" /> Claim Throne
+                <Shield className="mr-2 inline w-4 h-4" /> {isTribute ? "Seal Influence" : "Claim Throne"}
               </button>
             </div>
           </div>
@@ -240,7 +245,7 @@ function ImperialUploadContent() {
         {status === 'success' && (
           <div className="text-center flex flex-col items-center animate-in zoom-in duration-700">
             <CheckCircle2 className="w-16 h-16 text-green-500 mb-8" />
-            <h2 className="text-4xl font-black tracking-[0.3em] text-white uppercase italic">Legacy Secured</h2>
+            <h2 className="text-4xl font-black tracking-[0.3em] text-white uppercase italic">{isTribute ? "Influence Sealed" : "Legacy Secured"}</h2>
             <button onClick={() => window.location.reload()} className="mt-8 text-[#b38f4a] border-b border-[#b38f4a]/30 pb-1 text-[10px] tracking-[0.4em] uppercase hover:text-white transition-colors">Return</button>
           </div>
         )}

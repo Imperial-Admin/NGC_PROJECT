@@ -15,31 +15,37 @@ export default function CardPayment() {
     setLoading(true);
     
     try {
-      // משיכת כל הנתונים מהזיכרון כדי שהכל יתעדכן (שם, תמונה, מחיר ו-RSS)
+      // משיכת כל הנתונים מהזיכרון
       const dynamicPrice = Number(sessionStorage.getItem('imp_price')) || 10;
       const sovName = sessionStorage.getItem('imp_name') || "Sovereign";
       const sovImg = sessionStorage.getItem('imp_img') || '';
       const sovMsg = sessionStorage.getItem('imp_msg') || "";
+      const purchaseType = sessionStorage.getItem('imp_type') || "sovereign";
 
-      // שמירה מלאה ל-Database כולל ה-subtitle ל-RSS - ללא שינוי מבני
-      const { error } = await supabase.from('sovereigns').insert([{ 
-        name: sovName, 
-        price_paid: dynamicPrice, 
-        image_url: sovImg,
-        subtitle: sovMsg
-      }]);
-
-      if (error) {
-        console.warn("DB Warning (subtitle schema issue):", error.message);
+      if (purchaseType === 'tribute') {
+        // עדכון קיר הלבבות בלבד
+        const { error } = await supabase.from('tributes').insert([{ 
+          name: sovName, 
+          location: sovMsg || "HEART WALL"
+        }]);
+        if (error) console.warn("Tribute DB Error:", error.message);
+      } else {
+        // עדכון הקיסר השולט - ללא שינוי מבני
+        const { error } = await supabase.from('sovereigns').insert([{ 
+          name: sovName, 
+          price_paid: dynamicPrice, 
+          image_url: sovImg,
+          subtitle: sovMsg
+        }]);
+        if (error) console.warn("DB Warning (subtitle schema issue):", error.message);
       }
 
-      // הניתוב המדויק שלך להיסטוריה - כפיית רענון נתונים למהירות מקסימלית
+      // הניתוב המדויק שלך להיסטוריה
       window.location.href = "/history?success=true"; 
 
     } catch (err) { 
       setLoading(false); 
       console.error("Transmission Error:", err);
-      // ניתוב גיבוי כדי שהתהליך ימשיך גם אם יש שגיאה רגעית
       window.location.href = "/history?success=true";
     }
   };
@@ -107,7 +113,7 @@ export default function CardPayment() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               <span className="relative z-10">
-                {loading ? "TRANSMITTING..." : "CONFIRM SUCCESSION"}
+                {loading ? "TRANSMITTING..." : "CONFIRM TRANSACTION"}
               </span>
             </button>
           </footer>
