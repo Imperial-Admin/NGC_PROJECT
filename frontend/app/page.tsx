@@ -317,7 +317,7 @@ function HomeContent() {
       <div className="absolute bottom-4 left-10 flex items-center gap-6 z-20">
          <button onClick={() => router.push('/share')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
-         <button className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
+         <button onClick={() => router.push('/live')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button onClick={() => router.push('/history')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
