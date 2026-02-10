@@ -141,9 +141,9 @@ function HomeContent() {
     }, 4000);
 
     return () => { 
-      clearInterval(viewerInterval); 
-      clearInterval(activityInterval); 
-      supabase.removeChannel(channel);
+        clearInterval(viewerInterval); 
+        clearInterval(activityInterval); 
+        supabase.removeChannel(channel);
     };
   }, []);
 
@@ -228,9 +228,9 @@ function HomeContent() {
       </div>
 
       <div className="absolute top-[72px] left-0 right-0 z-20 flex flex-col items-center pointer-events-none opacity-40">
-         <div className="text-center">
+          <div className="text-center">
             <p className="text-[9px] md:text-[10px] tracking-[0.6em] uppercase font-light italic leading-[2] text-white">To take the throne, <br/> outvalue the current Sovereign by 10%. <br/> Your legacy remains until a greater tribute is paid.</p>
-         </div>
+          </div>
       </div>
 
       {isCoronating && (
@@ -254,11 +254,11 @@ function HomeContent() {
                         <p className="text-lg font-mono font-black text-white tracking-tighter">{likes.toLocaleString()}</p>
                     </div>
                     <div className="flex-1 overflow-hidden relative flex flex-col justify-end">
-                       <div className="flex flex-col gap-2">
-                          {activities.map((item) => (
-                            <p key={item.id} className={`text-[9px] h-6 tracking-widest opacity-90 italic flex items-center animate-slide-up-gold ${item.isNew ? 'text-[#D4AF37] font-bold' : 'text-white'}`}>{item.text}</p>
-                          ))}
-                       </div>
+                        <div className="flex flex-col gap-2">
+                           {activities.map((item) => (
+                             <p key={item.id} className={`text-[9px] h-6 tracking-widest opacity-90 italic flex items-center animate-slide-up-gold ${item.isNew ? 'text-[#D4AF37] font-bold' : 'text-white'}`}>{item.text}</p>
+                           ))}
+                        </div>
                     </div>
                 </div>
              </div>
@@ -325,7 +325,7 @@ function HomeContent() {
              <div className="absolute -bottom-16 left-0 w-full px-[2px]">
                 <button onClick={triggerTribute} className="relative group w-full active:scale-[0.98] transition-all duration-300 rounded-sm overflow-hidden shadow-lg outline-none">
                     <div className="absolute -inset-1 bg-[#b38f4a] opacity-20 group-hover:opacity-40 blur-sm transition duration-500"></div>
-                    <div className="relative py-3 text-[#1a1103] font-bold uppercase tracking-[0.3em] text-[10px] flex items-center justify-center border border-[#b38f4a]/30 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)]" style={{ backgroundImage: imperialGold }}>Seal Influence - $10</div>
+                    <div className="relative py-3 text-[#1a1103] font-bold uppercase tracking-[0.3em] text-[10px] flex items-center justify-center border border-[#b38f4a]/30 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)]" style={{ backgroundImage: imperialGold }}>Seal Influence - $25</div>
                 </button>
              </div>
           </div>
@@ -352,6 +352,11 @@ function HomeContent() {
          <button onClick={() => router.push('/live')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
          <div className="h-2 w-[1px] bg-[#b38f4a]/20"></div>
          <button onClick={() => router.push('/history')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
+      </div>
+
+      {/* הלינק המלכותי החדש - בדיוק באותו הגובה בצד ימין למטה */}
+      <div className="absolute bottom-4 right-10 flex items-center z-20">
+         <button onClick={() => router.push('/broadcast')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a] hover:text-white transition-all font-black">Imperial Live</button>
       </div>
 
       <style jsx global>{`

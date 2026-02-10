@@ -28,6 +28,7 @@ export default function CryptoPayment() {
     if (loading) return;
     setLoading(true);
     
+    // סנכרון נתונים מהזיכרון הקיסרי
     const dynamicPrice = Number(sessionStorage.getItem('imp_price')) || 10;
     const sovName = sessionStorage.getItem('imp_name') || "Sovereign";
     const sovImg = sessionStorage.getItem('imp_img') || '';
@@ -36,13 +37,13 @@ export default function CryptoPayment() {
 
     try {
       if (purchaseType === 'tribute') {
-        // עדכון קיר הלבבות בלבד
+        // עדכון קיר הלבבות
         await supabase.from('tributes').insert([{ 
           name: sovName, 
           location: sovMsg || "HEART WALL"
         }]);
       } else {
-        // ניסיון שמירה לקיסר - אם העמודה subtitle חסרה, זה יזרוק שגיאה ל-catch
+        // עדכון הקיסר ושמירת המחיר האמיתי ב-price_paid שראינו ב-Supabase
         await supabase.from('sovereigns').insert([{ 
           name: sovName, 
           price_paid: dynamicPrice, 
@@ -51,11 +52,11 @@ export default function CryptoPayment() {
         }]);
       }
       
-      // שחרור התקיעה: עוברים דף מיד
+      // העברה מיידית לדף ההיסטוריה עם חגיגת ניצחון
       window.location.href = "/history?success=true"; 
 
     } catch (err) { 
-      // במקרה של שגיאה, אנחנו לא נתקעים! עוברים דף בכל מקרה
+      // במקרה של שיהוי בסנכרון, אנחנו לא עוצרים את המשתמש
       console.warn("Vault Sync Delay:", err);
       window.location.href = "/history?success=true";
     }

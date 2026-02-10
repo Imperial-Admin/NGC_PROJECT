@@ -30,7 +30,7 @@ export default function CardPayment() {
         }]);
         if (error) console.warn("Tribute DB Error:", error.message);
       } else {
-        // עדכון הקיסר השולט - ללא שינוי מבני
+        // הזרקת המחיר האמיתי לעמודה price_paid שראינו ב-Supabase
         const { error } = await supabase.from('sovereigns').insert([{ 
           name: sovName, 
           price_paid: dynamicPrice, 

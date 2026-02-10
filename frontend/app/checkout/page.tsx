@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 export default function CheckoutPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("10"); 
+  const [price, setPrice] = useState("25"); 
   const [purchaseType, setPurchaseType] = useState("sovereign");
 
   // סנכרון נתונים מהדף הקודם (Upload) מבלי לשנות את העיצוב

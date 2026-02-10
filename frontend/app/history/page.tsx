@@ -29,7 +29,6 @@ function HistoryContent() {
   const [sovereigns, setSovereigns] = useState<Sovereign[]>([]);
   const [tributes, setTributes] = useState<Tribute[]>([]);
 
-  // פתרון ה-Issue האדום וניהול הקונפטי
   useEffect(() => {
     setMounted(true);
     if (typeof window === 'undefined') return;
@@ -37,7 +36,6 @@ function HistoryContent() {
     const isSuccess = searchParams?.get('success') === 'true';
     
     if (isSuccess) {
-      // העברה אוטומטית ל-HEART WALL רק אם מדובר בתשלום SEAL
       if (sessionStorage.getItem('imp_type') === 'tribute') {
         setView('tributes');
       }
@@ -61,7 +59,6 @@ function HistoryContent() {
     }
   }, [searchParams]);
 
-  // משיכת נתונים מהירה ומסונכרנת ל-10%
   useEffect(() => {
     if (!mounted) return;
 
@@ -79,7 +76,6 @@ function HistoryContent() {
 
         if (sovData) setSovereigns(sovData);
         
-        // אם אין tributes ב-DB, נציג את רשימת ברירת המחדל כדי שלא יהיה ריק
         if (tribData && tribData.length > 0) {
           setTributes(tribData);
         } else {
@@ -138,6 +134,13 @@ function HistoryContent() {
                   </div>
                 )}
                 <div className="relative aspect-[4/5] overflow-hidden border-2 border-[#b38f4a]/50 bg-[#050505] rounded-[12px] shadow-2xl transition-all duration-1000 group-hover:border-[#e6c68b]">
+                  {/* תג המחיר המלכותי - רחב יותר ושקוף יותר */}
+                  <div className="absolute top-3 right-3 z-30 px-5 py-1.5 backdrop-blur-md bg-black/40 border border-[#b38f4a]/40 rounded-sm shadow-[0_4px_10px_rgba(0,0,0,0.5)] flex items-center justify-center min-w-[100px]">
+                    <span className="text-[#e6c68b] text-[10px] md:text-[11px] font-mono font-black tracking-widest drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                      ${(sov.price_paid || 0).toLocaleString('en-US')}
+                    </span>
+                  </div>
+                  
                   <img src={sov.image_url} alt={sov.name} loading="lazy" className="w-full h-full object-cover transition-all duration-1000 grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent opacity-90" />
                   <div className="absolute bottom-0 left-0 w-full p-5 flex flex-col justify-end min-h-[90px]">
@@ -158,20 +161,22 @@ function HistoryContent() {
               const lastName = nameParts.slice(1).join(' ') || "";
               return (
                 <div key={trib.id} className="relative group">
-                  <div className="relative aspect-[3/4] bg-[#050505] border-2 border-[#b38f4a]/50 rounded-[12px] flex flex-col items-center justify-center p-3 transition-all duration-700 group-hover:border-[#e6c68b] group-hover:shadow-[0_0_25px_rgba(179,143,74,0.25)] overflow-hidden">
+                  {/* שינוי ל-justify-start ו-pt-14 כדי להעלות את השמות למעלה ולמנוע התנגשות */}
+                  <div className="relative aspect-[3/5.2] bg-[#050505] border-2 border-[#b38f4a]/50 rounded-[12px] flex flex-col items-center justify-start p-3 pt-14 transition-all duration-700 group-hover:border-[#e6c68b] group-hover:shadow-[0_0_25px_rgba(179,143,74,0.25)] overflow-hidden">
                     <div className="absolute top-3 left-3 z-20">
                       <img src="/heart.png" alt="Heart" className="w-[31px] h-[31px] object-contain transition-transform group-hover:scale-110" />
                     </div>
                     <div className="absolute -bottom-2 -right-2 opacity-10 blur-[2px] group-hover:opacity-20 transition-all duration-1000 rotate-12">
                       <Crown size={50} className="text-[#b38f4a]" />
                     </div>
-                    <div className="text-center w-full z-10 px-1 mt-3">
-                      <h3 className="text-[7px] md:text-[8px] tracking-[0.15em] uppercase font-black text-white leading-tight truncate">{firstName}</h3>
-                      {lastName && <h4 className="text-[6.5px] md:text-[7px] tracking-[0.1em] uppercase font-medium text-white/80 mt-0.5 truncate">{lastName}</h4>}
+                    {/* שינוי mt-3 ל-mt-2 כדי למרכז את השם בחלק העליון הפנוי */}
+                    <div className="text-center w-full z-10 px-1 mt-2">
+                      <h3 className="text-[7px] md:text-[8px] tracking-[0.15em] uppercase font-black text-white leading-tight break-words">{firstName}</h3>
+                      {lastName && <h4 className="text-[6.5px] md:text-[7px] tracking-[0.1em] uppercase font-medium text-white/80 mt-0.5 break-words">{lastName}</h4>}
                     </div>
-                    <div className="absolute bottom-4 left-0 w-full text-center z-10">
+                    <div className="absolute bottom-4 left-0 w-full text-center z-10 px-2">
                       <div className="w-8 h-[1px] bg-gradient-to-r from-transparent via-[#b38f4a]/30 to-transparent mx-auto mb-1"></div>
-                      <p className="text-[6.5px] tracking-[0.15em] uppercase text-[#b38f4a]/70 font-bold truncate px-2">{trib.location || "HEART LEDGER"}</p>
+                      <p className="text-[6.5px] tracking-[0.15em] uppercase text-[#b38f4a]/70 font-bold break-words leading-[1.3]">{trib.location || "HEART LEDGER"}</p>
                     </div>
                   </div>
                 </div>

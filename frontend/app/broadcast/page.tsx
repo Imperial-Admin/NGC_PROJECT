@@ -2,6 +2,7 @@
 'use client';
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { Crown } from 'lucide-react'; // הוספת האייקון לגיבוי עדין
 
 function BroadcastContent() {
   const [currentSovereign, setCurrentSovereign] = useState(null);
@@ -67,11 +68,24 @@ function BroadcastContent() {
         setCurrentSovereign(payload.new);
         setBuyersCount(prev => prev + 1);
         setIsCoronating(true);
+
+        const audio = new Audio('/victory.mp3');
+        audio.volume = 0.6;
+        audio.play().catch(e => console.log("Audio awaiting user interaction"));
+
         if (fireworkTrigger.current) {
-          fireworkTrigger.current(window.innerWidth * 0.3, window.innerHeight * 0.5);
-          fireworkTrigger.current(window.innerWidth * 0.7, window.innerHeight * 0.5);
+          for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+              if (fireworkTrigger.current) {
+                fireworkTrigger.current(
+                  window.innerWidth * (0.15 + Math.random() * 0.7), 
+                  window.innerHeight * (0.2 + Math.random() * 0.4)
+                );
+              }
+            }, i * 350);
+          }
         }
-        setTimeout(() => setIsCoronating(false), 6000);
+        setTimeout(() => setIsCoronating(false), 8000);
       })
       .on('postgres_changes', { event: 'INSERT', table: 'heart_wall' }, (payload) => {
         setHeartWall(prev => [payload.new, ...prev.slice(0, 14)]);
@@ -102,15 +116,21 @@ function BroadcastContent() {
       particles.forEach((p) => {
         p.vx *= p.friction; p.vy *= p.friction; p.vy += p.gravity; p.x += p.vx; p.y += p.vy; p.alpha -= p.decay;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`; ctx.fill();
+        const res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(p.color);
+        const rgb = res ? `${parseInt(res[1], 16)}, ${parseInt(res[2], 16)}, ${parseInt(res[3], 16)}` : '212, 175, 55';
+        ctx.fillStyle = `rgba(${rgb}, ${p.alpha})`; ctx.fill();
       });
       animationFrame = requestAnimationFrame(animate);
     };
     animate();
     fireworkTrigger.current = (x, y) => {
-      for (let i = 0; i < 150; i++) {
+      const colors = ['#D4AF37', '#FBF5B7', '#FFD700', '#E6C68B', '#FFFFFF'];
+      for (let i = 0; i < 120; i++) {
         const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 12 + 6;
-        particles.push({ x, y, vx: Math.cos(angle) * velocity, vy: Math.sin(angle) * velocity, alpha: 1, gravity: 0.15, friction: 0.96, size: Math.random() * 3 + 1, decay: Math.random() * 0.01 + 0.005 });
+        particles.push({ 
+          x, y, vx: Math.cos(angle) * velocity, vy: Math.sin(angle) * velocity, alpha: 1, gravity: 0.15, friction: 0.96, size: Math.random() * 3 + 1, decay: Math.random() * 0.01 + 0.005,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
       }
     };
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
@@ -118,9 +138,9 @@ function BroadcastContent() {
 
   if (!currentSovereign) return <div className="h-screen bg-black flex items-center justify-center text-[#b38f4a] tracking-[1em] uppercase text-[10px]">Imperial Signal Syncing...</div>;
 
-  // פונקציית עזר לתיקון נתיב התמונה בזמן אמת - מבטיח שכל תמונה תעלה בחדות בשידור
+  // תיקון ה-URL: החזרת null במקום "" מעלימה את השגיאה האדומה
   const getImageUrl = (url) => {
-    if (!url) return "";
+    if (!url) return null;
     if (url.startsWith('data:') || url.startsWith('http')) return url;
     return url.startsWith('/') ? url : '/' + url;
   };
@@ -131,7 +151,7 @@ function BroadcastContent() {
       
       <div className="absolute top-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center opacity-70">
           <p className="text-[7px] tracking-[1em] uppercase font-black text-[#b38f4a] mb-2">Imperial Digital Gateway</p>
-          <p className="text-xl tracking-[0.4em] uppercase font-black bg-clip-text text-transparent bg-gradient-to-b from-[#fbf5b7] to-[#b38f4a]">WWW.YOURDOMAIN.COM</p>
+          <p className="text-xl tracking-[0.4em] uppercase font-black bg-clip-text text-transparent bg-gradient-to-b from-[#fbf5b7] to-[#b38f4a]">WWW.JOINNGC.COM</p>
       </div>
 
       <div className="relative flex items-center justify-center">
@@ -146,12 +166,20 @@ function BroadcastContent() {
 
         <div className="relative w-[112.5vh] aspect-[6/5] shadow-[0_0_150px_rgba(0,0,0,1)]" style={{ padding: '2px', backgroundImage: imperialGold }}>
            <div className="h-full w-full bg-black relative overflow-hidden flex flex-col items-center justify-center">
-              {/* שימוש בפונקציית התיקון המלכותית - מעלים את ה-Broken Image אחת ולתמיד */}
-              <img 
-                src={getImageUrl(currentSovereign.image_url)} 
-                alt="Live" 
-                className="w-full h-full object-contain brightness-90 contrast-110" 
-              />
+              {/* הגנה מפני תמונה שבורה: אם אין URL, נציג רקע שחור נקי */}
+              {getImageUrl(currentSovereign.image_url) ? (
+                <img 
+                  src={getImageUrl(currentSovereign.image_url)} 
+                  alt="Live" 
+                  className="w-full h-full object-contain brightness-90 contrast-110" 
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center opacity-20">
+                  <Crown size={120} strokeWidth={0.5} className="text-[#b38f4a]" />
+                  <p className="text-[8px] tracking-[1em] uppercase text-[#b38f4a] mt-4">Signal Offline</p>
+                </div>
+              )}
+              
               <div className="absolute bottom-6 left-0 right-0 z-20 flex flex-col items-center">
                   <div className="px-12 py-4 backdrop-blur-md bg-black/60 border-y border-[#b38f4a]/30 shadow-2xl relative min-w-[400px] flex items-center justify-center">
                       <h2 className="text-2xl tracking-[0.6em] uppercase font-black text-white drop-shadow-lg text-center w-full">{currentSovereign.name}</h2>

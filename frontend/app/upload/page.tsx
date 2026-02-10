@@ -22,7 +22,7 @@ function ImperialUploadContent() {
   const [subtitle, setSubtitle] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
-  const [dynamicPrice, setDynamicPrice] = useState(10);
+  const [dynamicPrice, setDynamicPrice] = useState(25);
   const [mounted, setMounted] = useState(false); 
   
   const imgRef = useRef<HTMLImageElement>(null);
@@ -34,7 +34,7 @@ function ImperialUploadContent() {
     setMounted(true);
     const fetchCurrentPrice = async () => {
       if (isTribute) {
-        setDynamicPrice(10);
+        setDynamicPrice(25);
         return;
       }
       const { count } = await supabase.from('sovereigns').select('*', { count: 'exact', head: true });
@@ -207,7 +207,7 @@ function ImperialUploadContent() {
             </div>
             <div className="w-full max-w-md space-y-4">
               <div className="relative"><input type="text" placeholder={isTribute ? "NAME FOR THE HEART WALL" : "NAME OF THE SOVEREIGN"} value={title} maxLength={15} onChange={e => setTitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 pr-10 text-center focus:outline-none focus:border-[#b38f4a] text-xs tracking-[0.4em] uppercase text-white font-bold" /><span className="absolute right-0 bottom-2 text-[7px] text-[#b38f4a]/40 italic">{title.length}/15</span></div>
-              <div className="relative"><input type="text" placeholder={isTribute ? "YOUR HEART MESSAGE" : "YOUR LEGACY MESSAGE"} value={subtitle} maxLength={100} onChange={e => setSubtitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 pr-12 text-center focus:outline-none focus:border-[#b38f4a] text-[10px] tracking-[0.3em] uppercase text-white italic" /><span className="absolute right-0 bottom-2 text-[7px] text-[#b38f4a]/40 italic">{subtitle.length}/100</span></div>
+              <div className="relative"><input type="text" placeholder={isTribute ? "YOUR HEART MESSAGE" : "YOUR LEGACY MESSAGE"} value={subtitle} maxLength={45} onChange={e => setSubtitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 pr-12 text-center focus:outline-none focus:border-[#b38f4a] text-[10px] tracking-[0.3em] uppercase text-white italic" /><span className="absolute right-0 bottom-2 text-[7px] text-[#b38f4a]/40 italic">{subtitle.length}/45</span></div>
             </div>
             <button onClick={generateCroppedImg} disabled={!title} className="w-[320px] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl active:scale-95" style={{ backgroundImage: imperialGold }}>{isTribute ? "Review Tribute" : "Review Ascension"}</button>
           </div>
