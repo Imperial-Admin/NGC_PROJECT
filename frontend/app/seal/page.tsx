@@ -1,18 +1,28 @@
+// @ts-nocheck
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Crown } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient'; // תיקון הנתיב: עולים 2 קומות למעלה
 
 function SealContent() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
+  const [countryCode, setCountryCode] = useState('un'); // סטייט חדש לשמירת קוד המדינה
   const [mounted, setMounted] = useState(false);
   
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
   useEffect(() => {
     setMounted(true);
+    // זיהוי אוטומטי של המדינה של המשתמש
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => { 
+        if(data.country) setCountryCode(data.country.toLowerCase()); 
+      })
+      .catch(() => {});
   }, []);
 
   // לוגיקת חלוקת השם כפי שמופיעה ב-History
@@ -22,11 +32,15 @@ function SealContent() {
 
   const handleProceed = () => {
     if (!title) return;
-    sessionStorage.setItem('imp_name', title); 
-    sessionStorage.setItem('imp_msg', subtitle);
-    sessionStorage.setItem('imp_price', "10");
-    sessionStorage.setItem('imp_type', 'tribute'); 
-    router.push('/checkout'); 
+
+    // הזרמת הנתון לשידור החי - מעכשיו כולל את קוד המדינה לסנכרון הדגל
+    supabase.from('heart_wall').insert([{ name: title, country_code: countryCode }]).then(() => {
+      sessionStorage.setItem('imp_name', title); 
+      sessionStorage.setItem('imp_msg', subtitle);
+      sessionStorage.setItem('imp_price', "10");
+      sessionStorage.setItem('imp_type', 'tribute'); 
+      router.push('/checkout'); 
+    });
   };
 
   if (!mounted) return null;

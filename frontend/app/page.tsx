@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import React, { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,28 +7,29 @@ import { supabase } from '../lib/supabaseClient';
 function HomeContent() {
   const router = useRouter();
   const [buyers, setBuyers] = useState(0);
-  const [likes, setLikes] = useState(756567);
+  
+  // קיבוע בסיס הלייקים הקיסרי
+  const LIKES_BASE = 756567;
+  const [likes, setLikes] = useState(LIKES_BASE);
+  
   const [userCountry, setUserCountry] = useState("Monaco");
   const [isShaking, setIsShaking] = useState(false);
   const [isHeartBeating, setIsHeartBeating] = useState(false);
   const [isCoronating, setIsCoronating] = useState(false);
   const [mounted, setMounted] = useState(false);
   
-  // לוגיקת צופים ריאליסטית
   const MIN_VIEWERS = 123452; 
   const TARGET_BASE = 124500; 
   const [onlineViewers, setOnlineViewers] = useState(TARGET_BASE); 
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // State לניהול הנתונים הדינמיים מה-Database - נוקה מהתמונה הישנה בזהירות
   const [currentSovereign, setCurrentSovereign] = useState<any>({
     name: "ALEXANDER VON BERG",
     image_url: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
     subtitle: "Success is a choice"
   });
 
-  // אופטימיזציה קריטית: קיבוע חלקיקי הזהב למניעת איטיות ("בקושי זז")
   const goldParticles = useMemo(() => {
     return [...Array(200)].map(() => ({
       width: `${Math.random() * 2}px`,
@@ -62,6 +64,7 @@ function HomeContent() {
     { name: "Avi Ben-Haim", msg: "Securing the future", loc: "Tel Aviv", code: "il" }
   ];
 
+  const [realTributes, setRealTributes] = useState(tributes);
   const [latestTribute, setLatestTribute] = useState(tributes[0]);
   const [activities, setActivities] = useState([
     { id: 1, text: "Sovereign presence detected: Zurich", isNew: false },
@@ -71,7 +74,6 @@ function HomeContent() {
     { id: 5, text: "Wealth frequency stabilized: Singapore", isNew: false }
   ]);
 
-  // נוסחת האחוזים - קופצת ב-10% בכל קנייה (buyers)
   const currentPrice = Math.round(10 * Math.pow(1.1, buyers)).toLocaleString('en-US', {
     style: 'currency', currency: 'USD', maximumFractionDigits: 0
   });
@@ -81,18 +83,42 @@ function HomeContent() {
   useEffect(() => {
     setMounted(true);
     
-    // משיכת הנתונים וספירת כמות הקונים (לעדכון האחוזים והשם המרכזי)
-    const fetchSovereign = async () => {
-      // 1. ספירת קונים בנפרד (כדי שהמחיר יתעדכן גם אם יש שגיאת 400 בנתונים אחרים)
-      const { count } = await supabase.from('sovereigns').select('*', { count: 'exact', head: true });
-      if (count !== null) setBuyers(count);
+    const fetchData = async () => {
+      const { count: sovCount } = await supabase.from('sovereigns').select('*', { count: 'exact', head: true });
+      if (sovCount !== null) setBuyers(sovCount);
 
-      // 2. משיכת נתוני הקיסר האחרון
-      const { data } = await supabase.from('sovereigns').select('*').order('id', { ascending: false }).limit(1);
-      if (data && data.length > 0) setCurrentSovereign(data[0]);
+      const { data: sovData } = await supabase.from('sovereigns').select('*').order('id', { ascending: false }).limit(1);
+      if (sovData && sovData.length > 0) setCurrentSovereign(sovData[0]);
+
+      const { count: likesCount } = await supabase.from('likes').select('*', { count: 'exact', head: true });
+      if (likesCount !== null) setLikes(LIKES_BASE + likesCount);
+
+      const { data: hwData } = await supabase.from('heart_wall').select('name, country_code').order('id', { ascending: false }).limit(20);
+      if (hwData && hwData.length > 0) {
+        const mapped = hwData.map(h => ({ ...tributes[0], name: h.name, loc: "Global", code: h.country_code || "un" }));
+        setRealTributes(mapped);
+        setLatestTribute(mapped[0]);
+      }
     };
     
-    fetchSovereign();
+    fetchData();
+
+    const channel = supabase.channel('home-live-sync')
+      .on('postgres_changes', { event: 'INSERT', table: 'sovereigns' }, (payload) => {
+        setCurrentSovereign(payload.new);
+        setBuyers(prev => prev + 1);
+        setIsCoronating(true);
+        setTimeout(() => setIsCoronating(false), 5000);
+      })
+      .on('postgres_changes', { event: 'INSERT', table: 'likes' }, () => {
+        setLikes(prev => prev + 1);
+      })
+      .on('postgres_changes', { event: 'INSERT', table: 'heart_wall' }, (payload) => {
+        const newTribute = { ...tributes[0], name: payload.new.name, loc: "Global", code: payload.new.country_code || "un" };
+        setRealTributes(prev => [newTribute, ...prev.slice(0, 19)]);
+        setLatestTribute(newTribute);
+      })
+      .subscribe();
 
     fetch('https://ipapi.co/json/').then(res => res.json()).then(data => { if(data.country_name) setUserCountry(data.country_name); }).catch(() => {});
     
@@ -113,7 +139,12 @@ function HomeContent() {
       const newEntry = { id: Date.now(), text: `Sovereign ${actions[Math.floor(Math.random() * actions.length)]}: ${cities[Math.floor(Math.random() * cities.length)]}`, isNew: false };
       setActivities(prev => [...prev.slice(-9), newEntry]);
     }, 4000);
-    return () => { clearInterval(viewerInterval); clearInterval(activityInterval); };
+
+    return () => { 
+      clearInterval(viewerInterval); 
+      clearInterval(activityInterval); 
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -157,7 +188,8 @@ function HomeContent() {
   const triggerTribute = () => router.push('/seal');
 
   const handleLike = () => {
-    setLikes(prev => prev + 1); setIsHeartBeating(true);
+    supabase.from('likes').insert([{ created_at: new Date() }]).then(() => {});
+    setIsHeartBeating(true);
     setTimeout(() => setIsHeartBeating(false), 600);
     const newEntry = { id: Date.now(), text: `Imperial Allegiance Sworn: ${userCountry}`, isNew: true };
     setActivities(prev => [...prev.slice(-9), newEntry]);
@@ -278,7 +310,7 @@ function HomeContent() {
                 </div>
                 <div className="flex-1 overflow-hidden relative">
                     <div className="absolute inset-0 flex flex-col animate-marquee-smooth will-change-transform">
-                      {[...tributes, ...tributes].map((item, i) => (
+                      {[...realTributes, ...realTributes].map((item, i) => (
                          <div key={i} className="flex flex-col space-y-1 mb-8 shrink-0">
                            <div className="flex items-center justify-between w-full">
                              <p className="text-[10px] text-white/80 font-bold tracking-widest uppercase truncate max-w-[80%]">✦ {item.name}</p>
@@ -302,7 +334,7 @@ function HomeContent() {
         <div className="mt-24 flex flex-col items-center w-full relative transform -translate-y-[20px]">
            <div className="absolute -top-[45px] left-0 right-0 flex justify-center items-center pointer-events-none">
               <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase font-medium text-[#b38f4a] opacity-70 italic whitespace-nowrap">
-                 The Most Expensive Button in History
+                  The Most Expensive Button in History
               </p>
            </div>
            <button onClick={handleClaim} className="relative group w-full max-w-sm active:scale-[0.98] transition-all duration-500 rounded-sm overflow-hidden shadow-2xl outline-none">
