@@ -1,9 +1,9 @@
 // @ts-nocheck
 'use client';
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '../../lib/supabaseClient'; // שימוש בלקוח המשותף
 import { Crown } from 'lucide-react';
-import { supabase } from '../../lib/supabaseClient'; // תיקון הנתיב: עולים 2 קומות למעלה
 
 function SealContent() {
   const router = useRouter();
@@ -33,14 +33,15 @@ function SealContent() {
   const handleProceed = () => {
     if (!title) return;
 
-    // הזרמת הנתון לשידור החי - מעכשיו כולל את קוד המדינה לסנכרון הדגל
-    supabase.from('heart_wall').insert([{ name: title, country_code: countryCode }]).then(() => {
-      sessionStorage.setItem('imp_name', title); 
-      sessionStorage.setItem('imp_msg', subtitle);
-      sessionStorage.setItem('imp_price', "10");
-      sessionStorage.setItem('imp_type', 'tribute'); 
-      router.push('/checkout'); 
-    });
+    // התיקון: שומרים בזיכרון ה-Session בלבד ולא שולחים לענן בשלב זה
+    sessionStorage.setItem('imp_name', title); 
+    sessionStorage.setItem('imp_msg', subtitle);
+    sessionStorage.setItem('imp_country', countryCode); // שמירת המדינה לסנכרון הדגל
+    sessionStorage.setItem('imp_price', "10");
+    sessionStorage.setItem('imp_type', 'tribute'); 
+    
+    // מעבר לדף התשלום מבלי לעדכן את ה-Broadcast עדיין
+    router.push('/checkout'); 
   };
 
   if (!mounted) return null;
@@ -122,7 +123,7 @@ function SealContent() {
 
 export default function SealPage() {
   return (
-    <Suspense fallback={<div className="h-screen w-full bg-black flex items-center justify-center text-[#D4AF37] italic tracking-[0.5em] uppercase text-[10px]">Loading Heart Wall Assets...</div>}>
+    <Suspense fallback={null}>
       <SealContent />
     </Suspense>
   );

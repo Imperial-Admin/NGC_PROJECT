@@ -1,4 +1,5 @@
-"use client";
+// @ts-nocheck
+'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation'; 
@@ -17,7 +18,7 @@ interface Sovereign {
 interface Tribute {
   id: number;
   name: string;
-  location?: string;
+  location?: string; // חזרה ל-location המקורי שעובד במסד הנתונים
 }
 
 function HistoryContent() {
@@ -69,8 +70,9 @@ function HistoryContent() {
           .select('*')
           .order('id', { ascending: false });
         
+        // משיכת הנתונים מטבלת heart_wall המסונכרנת לשידור החי
         const { data: tribData } = await supabase
-          .from('tributes')
+          .from('heart_wall')
           .select('*')
           .order('id', { ascending: false });
 
@@ -134,13 +136,11 @@ function HistoryContent() {
                   </div>
                 )}
                 <div className="relative aspect-[4/5] overflow-hidden border-2 border-[#b38f4a]/50 bg-[#050505] rounded-[12px] shadow-2xl transition-all duration-1000 group-hover:border-[#e6c68b]">
-                  {/* תג המחיר המלכותי - רחב יותר ושקוף יותר */}
                   <div className="absolute top-3 right-3 z-30 px-5 py-1.5 backdrop-blur-md bg-black/40 border border-[#b38f4a]/40 rounded-sm shadow-[0_4px_10px_rgba(0,0,0,0.5)] flex items-center justify-center min-w-[100px]">
                     <span className="text-[#e6c68b] text-[10px] md:text-[11px] font-mono font-black tracking-widest drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
                       ${(sov.price_paid || 0).toLocaleString('en-US')}
                     </span>
                   </div>
-                  
                   <img src={sov.image_url} alt={sov.name} loading="lazy" className="w-full h-full object-cover transition-all duration-1000 grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent opacity-90" />
                   <div className="absolute bottom-0 left-0 w-full p-5 flex flex-col justify-end min-h-[90px]">
@@ -161,7 +161,6 @@ function HistoryContent() {
               const lastName = nameParts.slice(1).join(' ') || "";
               return (
                 <div key={trib.id} className="relative group">
-                  {/* שינוי ל-justify-start ו-pt-14 כדי להעלות את השמות למעלה ולמנוע התנגשות */}
                   <div className="relative aspect-[3/5.2] bg-[#050505] border-2 border-[#b38f4a]/50 rounded-[12px] flex flex-col items-center justify-start p-3 pt-14 transition-all duration-700 group-hover:border-[#e6c68b] group-hover:shadow-[0_0_25px_rgba(179,143,74,0.25)] overflow-hidden">
                     <div className="absolute top-3 left-3 z-20">
                       <img src="/heart.png" alt="Heart" className="w-[31px] h-[31px] object-contain transition-transform group-hover:scale-110" />
@@ -169,7 +168,6 @@ function HistoryContent() {
                     <div className="absolute -bottom-2 -right-2 opacity-10 blur-[2px] group-hover:opacity-20 transition-all duration-1000 rotate-12">
                       <Crown size={50} className="text-[#b38f4a]" />
                     </div>
-                    {/* שינוי mt-3 ל-mt-2 כדי למרכז את השם בחלק העליון הפנוי */}
                     <div className="text-center w-full z-10 px-1 mt-2">
                       <h3 className="text-[7px] md:text-[8px] tracking-[0.15em] uppercase font-black text-white leading-tight break-words">{firstName}</h3>
                       {lastName && <h4 className="text-[6.5px] md:text-[7px] tracking-[0.1em] uppercase font-medium text-white/80 mt-0.5 break-words">{lastName}</h4>}

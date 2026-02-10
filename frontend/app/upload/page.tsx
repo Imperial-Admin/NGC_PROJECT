@@ -144,6 +144,7 @@ function ImperialUploadContent() {
 
   const handleUpload = async () => {
     if (!croppedImage) return;
+    // שמירה ב-sessionStorage בלבד כדי למנוע עדכון Broadcast לפני תשלום
     sessionStorage.setItem('imp_img', croppedImage);
     sessionStorage.setItem('imp_name', title); 
     sessionStorage.setItem('imp_msg', subtitle);
@@ -251,6 +252,7 @@ function ImperialUploadContent() {
         @keyframes marqueeSeamless { 0% { transform: translate3d(50%, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
         .marquee-seamless { display: flex; animation: marqueeSeamless 20s linear infinite; }
         .ReactCrop__drag-handle::after { background-color: #D4AF37 !important; border: 1px solid #1a1103 !important; }
+        .ReactCrop__drag-handle { width: 10px !important; height: 10px !important; }
         .ReactCrop__crop-selection { border: 1px solid rgba(212, 175, 55, 0.8) !important; box-shadow: 0 0 0 9999em rgba(0, 0, 0, 0.7) !important; }
         @keyframes flashEffect { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
         .animate-price-pulse { animation: flashEffect 2s ease-in-out infinite; }
