@@ -13,7 +13,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-// זה החלק שמוסיף את התמונה והכותרת לכל האתר - לא משנה לאיזה דף נכנסים
+// התיקון שמעיף את ה-localhost ושם את הכתובת האמיתית
 export const metadata: Metadata = {
   title: 'The Imperial Archives | Legacy Sealed',
   description: 'A legacy of allegiance and gold. See the names etched in the eternal Heart Wall.',
