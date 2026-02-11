@@ -8,11 +8,12 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'The Imperial Archives | Legacy Sealed',
     description: 'My name is now part of the Imperial Legacy. View the Heart Wall.',
-    url: 'https://ngc-project.vercel.app/history', // עודכן לכתובת הנכונה שלך
+    url: 'https://ngc-project.vercel.app/history', 
     siteName: 'Imperial Legacy',
     images: [
       {
-        url: '/og-image.png',
+        // הכתובת המלאה שוואטסאפ חייב כדי לראות את התמונה
+        url: 'https://ngc-project.vercel.app/og-image.png', 
         width: 1200,
         height: 630,
         alt: 'The Imperial Heart Wall',
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'The Imperial Archives | Legacy Sealed',
-    images: ['/og-image.png'],
+    images: ['https://ngc-project.vercel.app/og-image.png'],
   },
 };
 
