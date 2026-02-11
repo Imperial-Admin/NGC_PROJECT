@@ -13,7 +13,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-// התיקון שמעיף את ה-localhost ושם את הכתובת האמיתית
+// הוספתי export לפני ה-const כדי ש-Vercel יזהה אותו
 export const metadata: Metadata = {
   title: 'The Imperial Archives | Legacy Sealed',
   description: 'A legacy of allegiance and gold. See the names etched in the eternal Heart Wall.',
@@ -32,11 +32,6 @@ export const metadata: Metadata = {
     ],
     locale: 'en_US',
     type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'The Imperial Archives | Legacy Sealed',
-    images: ['https://ngc-project.vercel.app/og-image.png'],
   },
 }
 
