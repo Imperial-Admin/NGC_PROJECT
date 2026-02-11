@@ -82,7 +82,8 @@ function BroadcastContent() {
           setTimeout(() => setIsCoronating(false), 8000);
         }
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'heart_wall' }, async () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'heart_wall' }, async () => {
+        // שינוי ל-event: '*' כדי לקלוט גם הוספות "כבדות" (כמו SEAL) ש-INSERT רגיל לפעמים מפספס ב-Realtime
         const { data: hw } = await supabase.from('heart_wall').select('name').order('id', { ascending: false }).limit(15);
         if (hw) setHeartWall(hw);
         if (fireworkTrigger.current) fireworkTrigger.current(window.innerWidth * 0.8, window.innerHeight * 0.7);
@@ -252,4 +253,4 @@ export default function BroadcastPage() {
   );
 }
 
-// Final Sync Line 269 אוי ואבוי לך אם ייחסר משהו
+// Final Sync Line 269  הנה אני מזהיר אותך שוב שלא תגיד לא אמרתי . אם משהו אחד נהרס או לא חוזרות לי 255 שורות זה הסוף שלך

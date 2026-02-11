@@ -183,7 +183,9 @@ function ImperialUploadContent() {
                   <div className="absolute -top-0.5 -right-0.5 z-50 w-16 h-6 rounded-bl-md flex items-center justify-center border-l border-b border-[#b38f4a]/30" style={{ backgroundImage: imperialGold }}>
                     <h3 className="text-[10px] font-black text-[#1a1103] tracking-tighter">$25</h3>
                   </div>
-                  <div className="absolute top-4 left-4 z-20"><img src="/heart.png" alt="Heart" className="w-[28px] h-[28px] object-contain" /></div>
+                  <div className="absolute top-4 left-4 z-20">
+                    <img src="/heart.png" alt="Heart" className="w-[28px] h-auto object-contain" />
+                  </div>
                   <div className="absolute -bottom-2 -right-2 opacity-10 blur-[1px] rotate-12 pointer-events-none"><Crown size={80} className="text-[#b38f4a]" /></div>
                   <div className="text-center w-full z-10 px-2 mt-4">
                     <h3 className="text-lg md:text-xl tracking-[0.1em] uppercase font-black text-white leading-tight break-words">{title.split(' ')[0] || "THEIR"}</h3>
@@ -251,7 +253,11 @@ function ImperialUploadContent() {
                     <h3 className="text-2xl font-black text-[#1a1103] tracking-tighter">${dynamicPrice}</h3>
                 </div>
                 <div className="h-full w-full rounded-sm overflow-hidden relative border-[1px] border-[#D4AF37]/20 pb-14 bg-black">
-                  {isGift ? ( <div className="flex flex-col items-center justify-center h-full"><img src="/heart.png" className="w-32 h-32 animate-pulse" /></div> ) : ( <img src={croppedImage!} className="w-full h-full object-contain contrast-115 brightness-95" /> )}
+                  {isGift ? ( 
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <img src="/heart.png" className="w-32 h-auto object-contain animate-pulse" />
+                    </div> 
+                  ) : ( <img src={croppedImage!} className="w-full h-full object-contain contrast-115 brightness-95" /> )}
                   <div className="absolute bottom-0 left-0 right-0 h-14 z-30 flex flex-col items-center justify-center backdrop-blur-md bg-black/70 border-t-2 border-[#FBF5B7]/50 shadow-[inset_0_5px_15px_rgba(212,175,55,0.2)]">
                         <h2 className="text-sm tracking-[0.4em] uppercase font-black text-[#FBF5B7]">{title}</h2>
                         <div className="h-[1px] w-8 bg-[#D4AF37] my-1 opacity-50"></div><div className="marquee-seamless"><p className="text-[#D4AF37] text-[10px] tracking-[0.4em] italic uppercase px-4">"{subtitle}"</p></div>
