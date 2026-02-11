@@ -2,7 +2,7 @@
 'use client';
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Crown } from 'lucide-react'; 
+import { Crown } from 'lucide-react'; // הוספת האייקון לגיבוי עדין
 
 function BroadcastContent() {
   const [currentSovereign, setCurrentSovereign] = useState(null);
@@ -18,10 +18,8 @@ function BroadcastContent() {
   const LIKES_BASE = 756567;
   const [likes, setLikes] = useState(LIKES_BASE); 
   const [isCoronating, setIsCoronating] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  
   const canvasRef = useRef(null);
-  const sidebarRef = useRef(null);
+  const fireworkTrigger = useRef(null);
   
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
@@ -30,7 +28,6 @@ function BroadcastContent() {
   });
 
   useEffect(() => {
-    setMounted(true);
     const interval = setInterval(() => {
       setOnlineViewers(prev => prev + Math.floor(Math.random() * 101) - 50);
     }, 4000);
@@ -38,8 +35,6 @@ function BroadcastContent() {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
-
     const style = document.createElement('style');
     style.innerHTML = `
       @keyframes crownDrop { 0% { transform: translateY(-500px); opacity: 0; } 60% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(200px) scale(1.5); opacity: 0; } }
@@ -69,103 +64,85 @@ function BroadcastContent() {
     fetchData();
 
     const channel = supabase.channel('broadcast-live-sync')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sovereigns' }, async (payload) => {
-        // משיכה מיידית של השורה המלאה (פותר את בעיית התמונה השחורה)
-        const { data: fullSovereign } = await supabase.from('sovereigns').select('*').eq('id', payload.new.id).single();
-        
-        if (fullSovereign) {
-          setCurrentSovereign(fullSovereign);
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sovereigns' }, async () => {
+        const { data: sov } = await supabase.from('sovereigns').select('*').order('id', { ascending: false }).limit(1);
+        if (sov && sov.length > 0) {
+          setCurrentSovereign(sov[0]);
           setBuyersCount(prev => prev + 1);
-          setIsCoronating(false);
-          setTimeout(() => setIsCoronating(true), 50);
-
-          const audio = new Audio('/victory.mp3');
-          audio.volume = 0.6;
-          audio.play().catch(e => console.log("Audio play deferred"));
-
-          if ((window as any).createFirework) {
+          setIsCoronating(true);
+          const audio = new Audio('/victory.mp3'); audio.volume = 0.6;
+          audio.play().catch(e => console.log("Audio interaction"));
+          if (fireworkTrigger.current) {
             for (let i = 0; i < 15; i++) {
               setTimeout(() => {
-                (window as any).createFirework(window.innerWidth * (0.15 + Math.random() * 0.7), window.innerHeight * (0.2 + Math.random() * 0.4));
+                if (fireworkTrigger.current) fireworkTrigger.current(window.innerWidth * (0.15 + Math.random() * 0.7), window.innerHeight * (0.2 + Math.random() * 0.4));
               }, i * 350);
             }
           }
           setTimeout(() => setIsCoronating(false), 8000);
         }
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'heart_wall' }, (payload) => {
-        // עדכון קיר הלבבות בלי לגעת בתמונה המרכזית
-        setHeartWall(prev => [payload.new, ...prev.slice(0, 14)]);
-        if ((window as any).createFirework && sidebarRef.current) {
-          const rect = sidebarRef.current.getBoundingClientRect();
-          (window as any).createFirework(rect.left + rect.width / 2, rect.top + 100);
-        }
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'heart_wall' }, async () => {
+        const { data: hw } = await supabase.from('heart_wall').select('name').order('id', { ascending: false }).limit(15);
+        if (hw) setHeartWall(hw);
+        if (fireworkTrigger.current) fireworkTrigger.current(window.innerWidth * 0.8, window.innerHeight * 0.7);
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'likes' }, () => {
-        setLikes(prev => prev + 1);
-      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'likes' }, () => setLikes(prev => prev + 1))
       .subscribe();
 
     return () => { 
         supabase.removeChannel(channel);
         if (document.head.contains(style)) document.head.removeChild(style);
     };
-  }, [mounted]);
+  }, []);
 
   useEffect(() => {
-    if (!mounted) return;
     const canvas = canvasRef.current; if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: true }); if (!ctx) return;
+    const ctx = canvas.getContext('2d'); if (!ctx) return;
     let particles = []; let animationFrame;
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     window.addEventListener('resize', resize); resize();
-
-    class Particle {
-      constructor(x, y, color) {
-        this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 10 + 5;
-        this.vx = Math.cos(angle) * velocity; this.vy = Math.sin(angle) * velocity;
-        this.alpha = 1; this.color = color; this.gravity = 0.12; this.friction = 0.95;
-        this.size = Math.random() * 2 + 1; this.decay = Math.random() * 0.015 + 0.01;
-      }
-      draw() {
-        if (!ctx) return; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        const res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(this.color);
-        const rgb = res ? `${parseInt(res[1], 16)}, ${parseInt(res[2], 16)}, ${parseInt(res[3], 16)}` : '212, 175, 55';
-        ctx.fillStyle = `rgba(${rgb}, ${this.alpha})`; ctx.fill();
-      }
-      update() { this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity; this.x += this.vx; this.y += this.vy; this.alpha -= this.decay; }
-    }
-
     const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      particles = particles.filter(p => p.alpha > 0); particles.forEach(p => { p.update(); p.draw(); });
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.alpha > 0);
+      particles.forEach((p) => {
+        p.vx *= p.friction; p.vy *= p.friction; p.vy += p.gravity; p.x += p.vx; p.y += p.vy; p.alpha -= p.decay;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        const res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(p.color);
+        const rgb = res ? `${parseInt(res[1], 16)}, ${parseInt(res[2], 16)}, ${parseInt(res[3], 16)}` : '212, 175, 55';
+        ctx.fillStyle = `rgba(${rgb}, ${p.alpha})`; ctx.fill();
+      });
       animationFrame = requestAnimationFrame(animate);
     };
     animate();
-
-    (window as any).createFirework = (x, y) => {
+    fireworkTrigger.current = (x, y) => {
       const colors = ['#D4AF37', '#FBF5B7', '#FFD700', '#E6C68B', '#FFFFFF'];
-      for (let i = 0; i < 120; i++) particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+      for (let i = 0; i < 120; i++) {
+        const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 12 + 6;
+        particles.push({ 
+          x, y, vx: Math.cos(angle) * velocity, vy: Math.sin(angle) * velocity, alpha: 1, gravity: 0.15, friction: 0.96, size: Math.random() * 3 + 1, decay: Math.random() * 0.01 + 0.005,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
     };
-
     return () => { cancelAnimationFrame(animationFrame); window.removeEventListener('resize', resize); };
-  }, [mounted]);
+  }, []);
 
   if (!currentSovereign) return <div className="h-screen bg-black flex items-center justify-center text-[#b38f4a] tracking-[1em] uppercase text-[10px]">Imperial Signal Syncing...</div>;
 
   const getImageUrl = (url) => {
-    if (!url || url.trim() === "") return null; 
+    if (!url) return null;
     if (url.startsWith('data:') || url.startsWith('http')) return url;
     return url.startsWith('/') ? url : '/' + url;
   };
 
   return (
     <main className="h-screen w-full bg-black flex flex-col items-center justify-center overflow-hidden font-serif relative">
-      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[100000]" style={{ mixBlendMode: 'screen' }} />
+      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[200]" />
       
       <div className="absolute top-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center opacity-70">
           <p className="text-[7px] tracking-[1em] uppercase font-black text-[#b38f4a] mb-2">Imperial Digital Gateway</p>
-          <p className="text-xl tracking-[0.4em] uppercase font-black bg-clip-text text-transparent bg-gradient-to-b from-[#fbf5b7] to-[#b38f4a]">WWW.JOINNGC.COM</p>
+          <p className="text-xl tracking-[0.4em] uppercase font-black bg-clip-text text-transparent bg-clip-text bg-gradient-to-b from-[#fbf5b7] to-[#b38f4a]">WWW.JOINNGC.COM</p>
       </div>
 
       <div className="relative flex items-center justify-center">
@@ -182,7 +159,6 @@ function BroadcastContent() {
            <div className="h-full w-full bg-black relative overflow-hidden flex flex-col items-center justify-center">
               {getImageUrl(currentSovereign.image_url) ? (
                 <img 
-                  key={currentSovereign.id}
                   src={getImageUrl(currentSovereign.image_url)} 
                   alt="Live" 
                   className="w-full h-full object-contain brightness-90 contrast-110" 
@@ -211,7 +187,7 @@ function BroadcastContent() {
         </div>
       </div>
 
-      <div className="absolute top-10 right-12 flex flex-col items-end gap-8 z-40">
+      <div className="absolute top-10 right-12 flex flex-col items-end gap-8">
           <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-3 bg-black/40 px-4 py-2 border border-[#b38f4a]/20 backdrop-blur-sm">
                  <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_15px_red]"></div>
@@ -231,11 +207,11 @@ function BroadcastContent() {
               <span className="text-[7px] tracking-[0.3em] uppercase text-[#b38f4a] font-bold">Imperial Pulse</span>
           </div>
 
-          <div ref={sidebarRef} className="flex flex-col items-end w-64 pt-4 border-t border-[#b38f4a]/20">
+          <div className="flex flex-col items-end w-64 pt-4 border-t border-[#b38f4a]/20">
               <span className="text-[7px] tracking-[0.4em] uppercase text-[#b38f4a] font-black mb-4 opacity-60">Recent Allegiances</span>
               <div className="flex flex-col items-end gap-3 w-full">
                   {heartWall.length > 0 ? heartWall.slice(0, 5).map((item, i) => (
-                      <div key={`${item.name}-${i}`} className="flex items-center gap-3 animate-entry" style={{ animationDelay: `${i * 0.1}s` }}>
+                      <div key={i} className="flex items-center gap-3 animate-entry" style={{ animationDelay: `${i * 0.1}s` }}>
                           <span className="text-white text-[10px] tracking-[0.2em] uppercase font-bold">{item.name}</span>
                           <span className="text-[#b38f4a] text-xs">💛</span>
                       </div>
@@ -246,11 +222,11 @@ function BroadcastContent() {
           </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-10 bg-black border-t border-[#b38f4a]/20 overflow-hidden flex items-center z-40">
+      <div className="absolute bottom-0 left-0 right-0 h-10 bg-black border-t border-[#b38f4a]/20 overflow-hidden flex items-center">
           <div className="absolute left-0 top-0 bottom-0 bg-[#b38f4a] text-[#1a1103] text-[9px] font-black uppercase tracking-widest flex items-center px-8 z-10 shadow-[8px_0_15px_rgba(0,0,0,0.8)]">Latest Allegiances</div>
           <div className="flex whitespace-nowrap animate-ticker">
               {heartWall.length > 0 ? heartWall.map((item, i) => (
-                  <span key={`ticker-${item.name}-${i}`} className="text-[9px] tracking-[0.4em] uppercase text-white/60 mx-12 flex items-center">
+                  <span key={i} className="text-[9px] tracking-[0.4em] uppercase text-white/60 mx-12 flex items-center">
                       <span className="text-[#b38f4a] mr-3">✦</span> {item.name}
                   </span>
               )) : <span className="text-[10px] tracking-[0.4em] uppercase text-white/20 mx-12">ONLY ONE SHALL SURVIVE TO CLAIM THE ETERNAL THRONE...</span>}
@@ -258,10 +234,10 @@ function BroadcastContent() {
       </div>
 
       {isCoronating && (
-        <div className="fixed inset-0 z-[1000000] flex flex-col items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
             <p className="z-[101] text-3xl tracking-[1.2em] uppercase text-white font-light italic animate-pulse">A New Sovereign Ascends</p>
-            <img src="/crown.png" alt="Crown" className="absolute top-20 z-[102] animate-crown-drop w-1/4 filter drop-shadow-[0_0_80px_#D4AF37]" />
+            <img src="/crown.png" alt="Crown" className="absolute top-0 z-[102] animate-crown-drop w-1/4 filter drop-shadow-[0_0_80px_#D4AF37]" />
         </div>
       )}
     </main>
@@ -275,3 +251,5 @@ export default function BroadcastPage() {
     </Suspense>
   );
 }
+
+// Final Sync Line 269 אוי ואבוי לך אם ייחסר משהו

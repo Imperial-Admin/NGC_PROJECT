@@ -74,6 +74,7 @@ function HomeContent() {
     { id: 5, text: "Wealth frequency stabilized: Singapore", isNew: false }
   ]);
 
+  // המחיר הדינמי חזר לבסיס 10 בדיוק כפי שהיה
   const currentPrice = Math.round(10 * Math.pow(1.1, buyers)).toLocaleString('en-US', {
     style: 'currency', currency: 'USD', maximumFractionDigits: 0
   });
@@ -93,7 +94,7 @@ function HomeContent() {
       const { count: likesCount } = await supabase.from('likes').select('*', { count: 'exact', head: true });
       if (likesCount !== null) setLikes(LIKES_BASE + likesCount);
 
-      const { data: hwData } = await supabase.from('heart_wall').select('name, country_code').order('id', { ascending: false }).limit(20);
+      const { data: hwData = [] } = await supabase.from('heart_wall').select('name, country_code').order('id', { ascending: false }).limit(20);
       if (hwData && hwData.length > 0) {
         const mapped = hwData.map(h => ({ ...tributes[0], name: h.name, loc: "Global", code: h.country_code || "un" }));
         setRealTributes(mapped);
@@ -186,6 +187,7 @@ function HomeContent() {
 
   const handleClaim = () => router.push('/upload');
   const triggerTribute = () => router.push('/seal');
+  const triggerGift = () => router.push('/upload?mode=gift');
 
   const handleLike = () => {
     supabase.from('likes').insert([{ created_at: new Date() }]).then(() => {});
@@ -322,10 +324,14 @@ function HomeContent() {
                     </div>
                 </div>
              </div>
-             <div className="absolute -bottom-16 left-0 w-full px-[2px]">
+             <div className="absolute -bottom-[110px] left-0 w-full px-[2px] flex flex-col gap-3 pointer-events-auto z-50">
                 <button onClick={triggerTribute} className="relative group w-full active:scale-[0.98] transition-all duration-300 rounded-sm overflow-hidden shadow-lg outline-none">
                     <div className="absolute -inset-1 bg-[#b38f4a] opacity-20 group-hover:opacity-40 blur-sm transition duration-500"></div>
                     <div className="relative py-3 text-[#1a1103] font-bold uppercase tracking-[0.3em] text-[10px] flex items-center justify-center border border-[#b38f4a]/30 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)]" style={{ backgroundImage: imperialGold }}>Seal Influence - $25</div>
+                </button>
+                <button onClick={triggerGift} className="relative group w-full active:scale-[0.98] transition-all duration-300 rounded-sm overflow-hidden shadow-lg outline-none">
+                    <div className="absolute -inset-1 bg-[#b38f4a] opacity-20 group-hover:opacity-40 blur-sm transition duration-500"></div>
+                    <div className="relative py-3 text-[#1a1103] font-bold uppercase tracking-[0.3em] text-[10px] flex items-center justify-center border border-[#b38f4a]/30 shadow-[inset_0_1px_2px_rgba(255,255,255,0.4)]" style={{ backgroundImage: imperialGold }}>Crown a Loved One - $25</div>
                 </button>
              </div>
           </div>
@@ -337,6 +343,7 @@ function HomeContent() {
                   The Most Expensive Button in History
               </p>
            </div>
+           
            <button onClick={handleClaim} className="relative group w-full max-w-sm active:scale-[0.98] transition-all duration-500 rounded-sm overflow-hidden shadow-2xl outline-none">
              <div className="absolute -inset-1 bg-gradient-to-r from-[#7a5210] via-[#b38f4a] to-[#7a5210] opacity-50 group-hover:opacity-100 blur-md transition duration-700"></div>
              <div className="relative py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs flex items-center justify-center h-full border border-[#b38f4a]/30 shadow-[0_5px_15px_rgba(0,0,0,0.5),inset_0_2px_3px_rgba(255,255,255,0.6),inset_0_-2px_3px_rgba(0,0,0,0.8)]" style={{ backgroundImage: imperialGold }}>
@@ -354,7 +361,6 @@ function HomeContent() {
          <button onClick={() => router.push('/history')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
       </div>
 
-      {/* הלינק המלכותי החדש - בדיוק באותו הגובה בצד ימין למטה */}
       <div className="absolute bottom-4 right-10 flex items-center z-20">
          <button onClick={() => router.push('/broadcast')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a] hover:text-white transition-all font-black">Imperial Live</button>
       </div>

@@ -1,5 +1,4 @@
-// @ts-nocheck
-'use client';
+"use client";
 import React, { useState } from 'react';
 import { CreditCard, Calendar, Lock, Shield } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
@@ -22,14 +21,13 @@ export default function CardPayment() {
       const sovImg = sessionStorage.getItem('imp_img') || '';
       const sovMsg = sessionStorage.getItem('imp_msg') || "";
       const purchaseType = sessionStorage.getItem('imp_type') || "sovereign";
-      const country = sessionStorage.getItem('imp_country') || 'un';
 
       if (purchaseType === 'tribute') {
-        // התיקון: שליחה לטבלה heart_wall עם העמודה location (ולא message) לסנכרון מלא
+        // עדכון קיר הלבבות - תיקון שם הטבלה והוספת קוד מדינה
         const { error } = await supabase.from('heart_wall').insert([{ 
           name: sovName, 
-          location: sovMsg, 
-          country_code: country 
+          location: sovMsg || "HEART WALL",
+          country_code: sessionStorage.getItem('imp_country') || 'un'
         }]);
         if (error) console.warn("Tribute DB Error:", error.message);
       } else {

@@ -5,12 +5,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient'; // שימוש בלקוח המשותף
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'; 
-import { Upload, CheckCircle2, Shield, Minus, Plus } from 'lucide-react';
+import { Upload, CheckCircle2, Shield, Minus, Plus, Crown } from 'lucide-react';
 
 function ImperialUploadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isTribute = searchParams.get('type') === 'tribute';
+  const isGift = searchParams.get('mode') === 'gift';
   
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>();
@@ -31,21 +32,23 @@ function ImperialUploadContent() {
   const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
   useEffect(() => {
+    let ignore = false;
     setMounted(true);
+    
     const fetchCurrentPrice = async () => {
-      if (isTribute) {
+      if (isTribute || isGift) {
         setDynamicPrice(25);
         return;
       }
       const { count } = await supabase.from('sovereigns').select('*', { count: 'exact', head: true });
-      if (count !== null) {
+      if (count !== null && !ignore) {
         setDynamicPrice(Math.round(10 * Math.pow(1.1, count)));
       }
     };
     fetchCurrentPrice();
 
     const paymentStatus = searchParams.get('payment');
-    if (paymentStatus === 'success') {
+    if (paymentStatus === 'success' && !ignore) {
       setStatus('success');
       setIsShaking(true);
       setIsCoronating(true);
@@ -58,7 +61,9 @@ function ImperialUploadContent() {
       setTimeout(() => setIsShaking(false), 1000);
       setTimeout(() => setIsCoronating(false), 8000);
     }
-  }, [searchParams, isTribute]);
+
+    return () => { ignore = true; };
+  }, [searchParams, isTribute, isGift]);
 
   useEffect(() => {
     if (status !== 'success' || !mounted) return;
@@ -119,6 +124,7 @@ function ImperialUploadContent() {
   }
 
   async function generateCroppedImg() {
+    if (isGift) { setStatus('preview'); return; }
     if (!completedCrop || !imgRef.current) return;
     const image = imgRef.current;
     const canvas = document.createElement('canvas');
@@ -143,13 +149,11 @@ function ImperialUploadContent() {
   }
 
   const handleUpload = async () => {
-    if (!croppedImage) return;
-    // שמירה ב-sessionStorage בלבד כדי למנוע עדכון Broadcast לפני תשלום
-    sessionStorage.setItem('imp_img', croppedImage);
+    sessionStorage.setItem('imp_img', isGift ? '/heart.png' : (croppedImage || ''));
     sessionStorage.setItem('imp_name', title); 
     sessionStorage.setItem('imp_msg', subtitle);
     sessionStorage.setItem('imp_price', dynamicPrice.toString());
-    sessionStorage.setItem('imp_type', isTribute ? 'tribute' : 'sovereign'); 
+    sessionStorage.setItem('imp_type', (isTribute || isGift) ? 'tribute' : 'sovereign'); 
     
     router.push('/checkout'); 
   };
@@ -165,25 +169,50 @@ function ImperialUploadContent() {
 
       {isCoronating && (
         <div className="fixed inset-0 z-[1000] flex flex-col items-center justify-center pointer-events-none">
-           <div className="absolute inset-0 bg-black/95 animate-fade-in"></div>
-           <p className="z-[1001] text-lg md:text-2xl tracking-[0.8em] uppercase text-white font-light italic animate-proclamation">A New Sovereign Ascends</p>
-           <img src="/crown.png" alt="Crown" className="absolute top-0 z-[1002] animate-crown-drop w-1/2 md:w-1/3 max-w-lg filter drop-shadow-[0_0_50px_#D4AF37]" />
+            <div className="absolute inset-0 bg-black/95 animate-fade-in"></div>
+            <p className="z-[1001] text-lg md:text-2xl tracking-[0.8em] uppercase text-white font-light italic animate-proclamation">A New Sovereign Ascends</p>
+            <img src="/crown.png" alt="Crown" className="absolute top-0 z-[1002] animate-crown-drop w-1/2 md:w-1/3 max-w-lg filter drop-shadow-[0_0_50px_#D4AF37]" />
         </div>
       )}
 
       <div className="w-full max-w-[1750px] px-6 relative z-10 flex flex-col items-center h-full justify-center">
         {status === 'idle' && (
-          <label className="group relative flex flex-col items-center justify-center w-[400px] h-[250px] border border-[#b38f4a]/30 bg-black/40 cursor-pointer hover:bg-[#b38f4a]/10 transition-all shadow-2xl backdrop-blur-sm">
-            <Upload className="w-10 h-10 mb-4 text-[#b38f4a]/40" />
-            <span className="text-[10px] tracking-[0.4em] uppercase text-gray-500 font-bold">{isTribute ? "Upload Tribute Portrait" : "Upload Portrait"}</span>
-            <input type="file" className="hidden" onChange={onSelectFile} accept="image/*" />
-          </label>
+          isGift ? (
+            <div className="w-full flex flex-col items-center gap-10 animate-in zoom-in-95 duration-500">
+               <div className="relative w-[210px] aspect-[3/4] bg-[#050505] border-2 border-[#b38f4a]/50 rounded-[12px] flex flex-col items-center justify-center p-4 shadow-2xl overflow-hidden group">
+                  <div className="absolute -top-0.5 -right-0.5 z-50 w-16 h-6 rounded-bl-md flex items-center justify-center border-l border-b border-[#b38f4a]/30" style={{ backgroundImage: imperialGold }}>
+                    <h3 className="text-[10px] font-black text-[#1a1103] tracking-tighter">$25</h3>
+                  </div>
+                  <div className="absolute top-4 left-4 z-20"><img src="/heart.png" alt="Heart" className="w-[28px] h-[28px] object-contain" /></div>
+                  <div className="absolute -bottom-2 -right-2 opacity-10 blur-[1px] rotate-12 pointer-events-none"><Crown size={80} className="text-[#b38f4a]" /></div>
+                  <div className="text-center w-full z-10 px-2 mt-4">
+                    <h3 className="text-lg md:text-xl tracking-[0.1em] uppercase font-black text-white leading-tight break-words">{title.split(' ')[0] || "THEIR"}</h3>
+                    <h4 className="text-xs md:text-sm tracking-[0.1em] uppercase font-medium text-white/80 mt-0.5 break-words">{title.split(' ').slice(1).join(' ') || "NAME"}</h4>
+                  </div>
+                  <div className="absolute bottom-6 left-0 w-full text-center z-10">
+                    <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-[#b38f4a]/30 to-transparent mx-auto mb-2"></div>
+                    <p className="text-[7px] tracking-[0.2em] uppercase text-[#b38f4a]/70 font-bold px-3 truncate">{subtitle || "GIFT LEDGER"}</p>
+                  </div>
+               </div>
+               <div className="w-full max-w-md space-y-6">
+                 <div className="relative"><input type="text" placeholder="RECIPIENT NAME" value={title} maxLength={15} onChange={e => setTitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 text-center focus:outline-none focus:border-[#b38f4a] text-xs tracking-[0.4em] uppercase text-white font-bold" /></div>
+                 <div className="relative"><input type="text" placeholder="GIFT MESSAGE" value={subtitle} maxLength={45} onChange={e => setSubtitle(e.target.value)} className="w-full bg-transparent border-b border-[#b38f4a]/20 py-2 text-center focus:outline-none focus:border-[#b38f4a] text-[10px] tracking-[0.3em] uppercase text-white italic" /></div>
+               </div>
+               <button onClick={generateCroppedImg} disabled={!title} className="w-[320px] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl active:scale-95" style={{ backgroundImage: imperialGold }}>Review Gift</button>
+            </div>
+          ) : (
+            <label className="group relative flex flex-col items-center justify-center w-[400px] h-[250px] border border-[#b38f4a]/30 bg-black/40 cursor-pointer hover:bg-[#b38f4a]/10 transition-all shadow-2xl backdrop-blur-sm">
+              <Upload className="w-10 h-10 mb-4 text-[#b38f4a]/40" />
+              <span className="text-[10px] tracking-[0.4em] uppercase text-gray-500 font-bold">{isTribute ? "Upload Tribute Portrait" : "Upload Portrait"}</span>
+              <input type="file" className="hidden" onChange={onSelectFile} accept="image/*" />
+            </label>
+          )
         )}
 
-        {status === 'details' && imageSrc && (
+        {status === 'details' && imageSrc && !isGift && (
           <div className="w-full flex flex-col items-center gap-6 animate-in zoom-in-95 duration-500">
-            <div className="relative w-[50vw] max-w-[850px] h-[50vh] rounded-lg shadow-2xl shrink-0" style={{ padding: '4px', backgroundImage: imperialGold, boxShadow: `0 30px 60px -15px rgba(0,0,0,1), inset 1px 1px 1px rgba(255, 255, 255, 0.6), inset -2px -2px 4px rgba(0, 0, 0, 0.8)` }}>
-                <div className="absolute bottom-12 -right-4 z-50 w-52 h-14 rounded-sm overflow-hidden flex items-center justify-center animate-price-pulse" style={{ backgroundImage: imperialGold, boxShadow: `0 10px 20px -5px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.8)` }}>
+            <div className="relative w-[50vw] max-w-[850px] h-[50vh] rounded-lg shadow-2xl shrink-0" style={{ padding: '4px', backgroundImage: imperialGold, boxShadow: `0 30px 60px -15px rgba(0,0,0,1), inset 1px 1px 1px rgba(255, 255, 255, 0.6)` }}>
+                <div className="absolute bottom-12 -right-4 z-50 w-52 h-14 rounded-sm overflow-hidden flex items-center justify-center animate-price-pulse" style={{ backgroundImage: imperialGold }}>
                     {[...Array(4)].map((_, i) => (<div key={i} className={`absolute w-1.5 h-1.5 rounded-full bg-[#2a1a05] ${i===0?'top-1 left-1':i===1?'top-1 right-1':i===2?'bottom-1 left-1':'bottom-1 right-1'}`}></div>))}
                     <h3 className="text-2xl font-black text-[#1a1103] tracking-tighter">${dynamicPrice}</h3>
                 </div>
@@ -216,24 +245,23 @@ function ImperialUploadContent() {
 
         {status === 'preview' && (
           <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-700 w-full">
-            <div className="relative w-[50vw] max-w-[850px] h-[50vh] rounded-lg shadow-2xl select-none shrink-0" style={{ padding: '4px', backgroundImage: imperialGold, boxShadow: `0 30px 60px -15px rgba(0,0,0,1), inset 1px 1px 1px rgba(255, 255, 255, 0.6), inset -2px -2px 4px rgba(0, 0, 0, 0.8)` }}>
-                <div className="absolute bottom-12 -right-4 z-50 w-52 h-14 rounded-sm overflow-hidden flex items-center justify-center animate-price-pulse" style={{ backgroundImage: imperialGold, boxShadow: `0 10px 20px -5px rgba(0,0,0,0.8), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.8)` }}>
+            <div className="relative w-[50vw] max-w-[850px] h-[50vh] rounded-lg shadow-2xl select-none shrink-0" style={{ padding: '4px', backgroundImage: imperialGold, boxShadow: `0 30px 60px -15px rgba(0,0,0,1), inset 1px 1px 1px rgba(255, 255, 255, 0.6)` }}>
+                <div className="absolute bottom-12 -right-4 z-50 w-52 h-14 rounded-sm overflow-hidden flex items-center justify-center animate-price-pulse" style={{ backgroundImage: imperialGold }}>
                     {[...Array(4)].map((_, i) => (<div key={i} className={`absolute w-1.5 h-1.5 rounded-full bg-[#2a1a05] ${i===0?'top-1 left-1':i===1?'top-1 right-1':i===2?'bottom-1 left-1':'bottom-1 right-1'}`}></div>))}
                     <h3 className="text-2xl font-black text-[#1a1103] tracking-tighter">${dynamicPrice}</h3>
                 </div>
                 <div className="h-full w-full rounded-sm overflow-hidden relative border-[1px] border-[#D4AF37]/20 pb-14 bg-black">
-                  <img src={croppedImage!} className="w-full h-full object-contain contrast-115 brightness-95" />
+                  {isGift ? ( <div className="flex flex-col items-center justify-center h-full"><img src="/heart.png" className="w-32 h-32 animate-pulse" /></div> ) : ( <img src={croppedImage!} className="w-full h-full object-contain contrast-115 brightness-95" /> )}
                   <div className="absolute bottom-0 left-0 right-0 h-14 z-30 flex flex-col items-center justify-center backdrop-blur-md bg-black/70 border-t-2 border-[#FBF5B7]/50 shadow-[inset_0_5px_15px_rgba(212,175,55,0.2)]">
                         <h2 className="text-sm tracking-[0.4em] uppercase font-black text-[#FBF5B7]">{title}</h2>
-                        <div className="h-[1px] w-8 bg-[#D4AF37] my-1 opacity-50"></div>
-                        <div className="marquee-seamless"><p className="text-[#D4AF37] text-[10px] tracking-[0.4em] italic uppercase px-4">"{subtitle}"</p></div>
+                        <div className="h-[1px] w-8 bg-[#D4AF37] my-1 opacity-50"></div><div className="marquee-seamless"><p className="text-[#D4AF37] text-[10px] tracking-[0.4em] italic uppercase px-4">"{subtitle}"</p></div>
                   </div>
                 </div>
             </div>
             <div className="flex gap-6 w-[400px] mt-12">
-              <button onClick={() => setStatus('details')} className="flex-1 py-4 border border-[#b38f4a]/30 text-[#b38f4a] uppercase text-[10px] font-bold">Edit</button>
+              <button onClick={() => setStatus('idle')} className="flex-1 py-4 border border-[#b38f4a]/30 text-[#b38f4a] uppercase text-[10px] font-bold">Edit</button>
               <button onClick={handleUpload} className="flex-[2] py-4 text-[#1a1103] font-black uppercase tracking-[0.4em] text-xs shadow-2xl active:scale-95 transition-all" style={{ backgroundImage: imperialGold }}>
-                <Shield className="mr-2 inline w-4 h-4" /> {isTribute ? "Seal Influence" : "Claim Throne"}
+                <Shield className="mr-2 inline w-4 h-4" /> {isTribute ? "Seal Influence" : (isGift ? "Crown Them" : "Claim Throne")}
               </button>
             </div>
           </div>
@@ -242,7 +270,7 @@ function ImperialUploadContent() {
         {status === 'success' && (
           <div className="text-center flex flex-col items-center animate-in zoom-in duration-700">
             <CheckCircle2 className="w-16 h-16 text-green-500 mb-8" />
-            <h2 className="text-4xl font-black tracking-[0.3em] text-white uppercase italic">{isTribute ? "Influence Sealed" : "Legacy Secured"}</h2>
+            <h2 className="text-4xl font-black tracking-[0.3em] text-white uppercase italic">{isTribute ? "Influence Sealed" : (isGift ? "Gift Delivered" : "Legacy Secured")}</h2>
             <button onClick={() => window.location.reload()} className="mt-8 text-[#b38f4a] border-b border-[#b38f4a]/30 pb-1 text-[10px] tracking-[0.4em] uppercase hover:text-white transition-colors">Return</button>
           </div>
         )}
@@ -252,7 +280,6 @@ function ImperialUploadContent() {
         @keyframes marqueeSeamless { 0% { transform: translate3d(50%, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
         .marquee-seamless { display: flex; animation: marqueeSeamless 20s linear infinite; }
         .ReactCrop__drag-handle::after { background-color: #D4AF37 !important; border: 1px solid #1a1103 !important; }
-        .ReactCrop__drag-handle { width: 10px !important; height: 10px !important; }
         .ReactCrop__crop-selection { border: 1px solid rgba(212, 175, 55, 0.8) !important; box-shadow: 0 0 0 9999em rgba(0, 0, 0, 0.7) !important; }
         @keyframes flashEffect { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
         .animate-price-pulse { animation: flashEffect 2s ease-in-out infinite; }

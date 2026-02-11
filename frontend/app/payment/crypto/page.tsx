@@ -1,8 +1,7 @@
-// @ts-nocheck
-'use client';
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import React, { useState, useEffect } from 'react';
 import { Copy, Check, Crown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../../../lib/supabaseClient';
 
 export default function CryptoPayment() {
@@ -35,15 +34,12 @@ export default function CryptoPayment() {
     const sovImg = sessionStorage.getItem('imp_img') || '';
     const sovMsg = sessionStorage.getItem('imp_msg') || "";
     const purchaseType = sessionStorage.getItem('imp_type') || "sovereign";
-    const country = sessionStorage.getItem('imp_country') || 'un';
 
     try {
       if (purchaseType === 'tribute') {
-        // התיקון: חזרה לשימוש ב-location (במקום message) לסנכרון מלא עם ה-DB והשידור
+        // עדכון קיר הלבבות - תיקון שם הטבלה והוספת מדינה לסנכרון דגלים
         await supabase.from('heart_wall').insert([{ 
-          name: sovName, 
-          location: sovMsg,
-          country_code: country 
+          name: sovName, location: sovMsg || "HEART WALL", country_code: sessionStorage.getItem('imp_country') || 'un'
         }]);
       } else {
         // עדכון הקיסר ושמירת המחיר האמיתי ב-price_paid שראינו ב-Supabase
