@@ -1,56 +1,53 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  weight: "100 900",
 });
-
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
-// הגדרות שיתוף מותאמות ל-Local - ללא "use client"
+// זה החלק שמוסיף את התמונה והכותרת לכל האתר - לא משנה לאיזה דף נכנסים
 export const metadata: Metadata = {
-  title: "THE SOVEREIGN ASSET",
-  description: "Claim your legacy. Live forever in gold. Experience the ultimate digital sovereignty.",
-  metadataBase: new URL("http://localhost:3000"), 
+  title: 'The Imperial Archives | Legacy Sealed',
+  description: 'A legacy of allegiance and gold. See the names etched in the eternal Heart Wall.',
   openGraph: {
-    title: "THE SOVEREIGN ASSET | Secure Your Legacy",
-    description: "The world's most exclusive digital throne. Witness the ascension or claim the power yourself.",
-    url: "http://localhost:3000", 
-    siteName: "NGC Sovereign",
+    title: 'The Imperial Archives | Legacy Sealed',
+    description: 'My name is now part of the Imperial Legacy. View the Heart Wall.',
+    url: 'https://ngc-project.vercel.app/',
+    siteName: 'Imperial Legacy',
     images: [
       {
-        url: "/model.jpg", 
+        url: 'https://ngc-project.vercel.app/og-image.png',
         width: 1200,
         height: 630,
-        alt: "NGC Sovereign Asset",
+        alt: 'The Imperial Heart Wall',
       },
     ],
-    locale: "en_US",
-    type: "website",
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "THE SOVEREIGN ASSET",
-    description: "Claim the throne. Secure the future.",
-    images: ["/model.jpg"],
+    card: 'summary_large_image',
+    title: 'The Imperial Archives | Legacy Sealed',
+    images: ['https://ngc-project.vercel.app/og-image.png'],
   },
-};
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}>
         {children}
       </body>
     </html>
