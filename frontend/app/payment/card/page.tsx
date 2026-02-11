@@ -24,21 +24,25 @@ export default function CardPayment() {
 
       if (purchaseType === 'tribute') {
         // עדכון קיר הלבבות - תיקון שם הטבלה והוספת קוד מדינה
-        const { error } = await supabase.from('heart_wall').insert([{ 
+        const { data, error } = await supabase.from('heart_wall').insert([{ 
           name: sovName, 
           location: sovMsg || "HEART WALL",
           country_code: sessionStorage.getItem('imp_country') || 'un'
-        }]);
+        }]).select();
+        
         if (error) console.warn("Tribute DB Error:", error.message);
+        if (data && data[0]) sessionStorage.setItem('imp_last_id', data[0].id.toString());
       } else {
         // הזרקת המחיר האמיתי לעמודה price_paid שראינו ב-Supabase
-        const { error } = await supabase.from('sovereigns').insert([{ 
+        const { data, error } = await supabase.from('sovereigns').insert([{ 
           name: sovName, 
           price_paid: dynamicPrice, 
           image_url: sovImg,
           subtitle: sovMsg
-        }]);
+        }]).select();
+        
         if (error) console.warn("DB Warning (subtitle schema issue):", error.message);
+        if (data && data[0]) sessionStorage.setItem('imp_last_id', data[0].id.toString());
       }
 
       // הניתוב המדויק שלך להיסטוריה

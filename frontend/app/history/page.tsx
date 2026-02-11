@@ -31,20 +31,14 @@ function HistoryContent() {
   const [view, setView] = useState<'sovereigns' | 'tributes'>('sovereigns');
   const [mounted, setMounted] = useState(false);
 
-  // State עבור נתונים מה-Database
   const [sovereigns, setSovereigns] = useState<Sovereign[]>([]);
   const [tributes, setTributes] = useState<Tribute[]>([]);
   
-  // --- Share Modal State ---
   const [showShareModal, setShowShareModal] = useState(false);
   const [purchasedName, setPurchasedName] = useState('');
 
-  // מגן מפני רינדורים כפולים שגורמים לשגיאות Hooks
   const isInitialMount = useRef(true);
 
-  /**
-   * שליפת נתונים מלאה מה-Database
-   */
   const fetchData = useCallback(async () => {
     try {
       console.log("--- 📥 Accessing Imperial Vault ---");
@@ -66,12 +60,9 @@ function HistoryContent() {
     
     const isSuccess = searchParams?.get('success') === 'true';
     if (isSuccess) {
-      // עדכון נתונים מיידי כדי להציג את הכתר והתמונה החדשה
       fetchData();
-
       const name = sessionStorage.getItem('imp_name') || 'A Legend';
       setPurchasedName(name);
-
       if (sessionStorage.getItem('imp_type') === 'tribute') setView('tributes');
 
       const url = new URL(window.location.href);
@@ -89,14 +80,24 @@ function HistoryContent() {
         confetti({ particleCount: 4, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors });
         if (Date.now() < end) requestAnimationFrame(frame);
       }());
-
       setTimeout(() => setShowShareModal(true), 6000);
     }
   }, [searchParams, fetchData]);
 
   /**
-   * אפקט לטעינה ראשונית וסנכרון Realtime מלא
+   * אפקט Deep Link: מציאת הלב והבהוב זהוב
    */
+  useEffect(() => {
+    const tid = searchParams?.get('tributeId');
+    if (tid && tributes.length > 0) {
+      setView('tributes');
+      setTimeout(() => {
+        const el = document.getElementById(`tribute-${tid}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 800);
+    }
+  }, [searchParams, tributes]);
+
   useEffect(() => {
     if (!mounted) return;
     if (isInitialMount.current) { fetchData(); isInitialMount.current = false; }
@@ -108,8 +109,9 @@ function HistoryContent() {
   }, [mounted, fetchData]);
 
   const handleShare = () => {
+    const lastId = sessionStorage.getItem('imp_last_id');
     const text = `My legacy is sealed in the Imperial Heart Wall! Check it out:`;
-    const url = window.location.origin;
+    const url = lastId ? `${window.location.origin}/history?tributeId=${lastId}` : window.location.origin;
     if (navigator.share) {
       navigator.share({ title: 'Imperial Legacy', text, url }).catch(() => {});
     } else {
@@ -176,7 +178,7 @@ function HistoryContent() {
         <section className="w-full max-w-[100rem] mx-auto px-4 mb-20 mt-6 animate-in fade-in duration-1000">
           <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-3 md:gap-4">
             {tributes.map((trib) => (
-                <div key={trib.id} className="relative group aspect-[3/5.2] bg-[#050505] border-2 border-[#b38f4a]/50 rounded-[12px] flex flex-col items-center p-3 pt-14">
+                <div key={trib.id} id={`tribute-${trib.id}`} className={`relative group aspect-[3/5.2] bg-[#050505] border-2 rounded-[12px] flex flex-col items-center p-3 pt-14 transition-all duration-700 ${searchParams.get('tributeId') === trib.id.toString() ? 'royal-glow border-[#e6c68b] z-40' : 'border-[#b38f4a]/50'}`}>
                   <div className="absolute top-3 left-3"><img src="/heart.png" className="w-[31px] h-[31px] object-contain" /></div>
                   <h3 className="text-[7px] md:text-[8px] tracking-[0.15em] uppercase font-black text-white text-center">{trib.name}</h3>
                   <div className="absolute bottom-4 left-0 w-full text-center px-2"><p className="text-[6.5px] tracking-[0.15em] uppercase text-[#b38f4a]/70 font-bold">{trib.location || "HEART LEDGER"}</p></div>
@@ -186,7 +188,6 @@ function HistoryContent() {
         </section>
       )}
 
-      {/* --- Imperial Floating Share Modal --- */}
       {showShareModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowShareModal(false)} />
@@ -197,13 +198,17 @@ function HistoryContent() {
             <p className="text-[9px] tracking-[0.2em] uppercase text-[#b38f4a]/60 mb-8 mt-2 italic">Allegiance with <span className="text-white font-bold">{purchasedName}</span> is eternal.</p>
             <div className="flex flex-col w-full gap-3">
               <button onClick={handleShare} className="flex items-center justify-center gap-2 py-3.5 bg-[#b38f4a] text-black rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#e6c68b] transition-all active:scale-95"><Share2 size={14} /> Share Legacy</button>
-              <button onClick={() => { window.location.href = `https://wa.me/?text=${encodeURIComponent('Join my legacy at ' + window.location.origin)}`; }} className="flex items-center justify-center gap-2 py-3.5 border border-[#b38f4a]/20 text-[#b38f4a] rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#b38f4a]/5 transition-all active:scale-95"><MessageCircle size={14} /> WhatsApp</button>
+              <button onClick={() => { window.location.href = `https://wa.me/?text=${encodeURIComponent('Join my legacy at ' + window.location.origin + '/history?tributeId=' + sessionStorage.getItem('imp_last_id'))}`; }} className="flex items-center justify-center gap-2 py-3.5 border border-[#b38f4a]/20 text-[#b38f4a] rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#b38f4a]/5 transition-all active:scale-95"><MessageCircle size={14} /> WhatsApp</button>
             </div>
           </div>
         </div>
       )}
 
       <footer className="text-center opacity-10 py-12"><p className="text-[6px] tracking-[2em] uppercase font-bold text-[#b38f4a] pl-[2em]">IMMUTABLE LEDGER</p></footer>
+      <style jsx global>{` 
+        @keyframes royal-glow { 0%, 100% { border-color: #b38f4a; box-shadow: 0 0 0px transparent; } 50% { border-color: #e6c68b; box-shadow: 0 0 25px #e6c68b; } }
+        .royal-glow { animation: royal-glow 1.5s ease-in-out infinite; border-width: 3px !important; }
+      `}</style>
     </main>
   );
 }
