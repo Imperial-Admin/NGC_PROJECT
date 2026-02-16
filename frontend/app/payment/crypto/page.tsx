@@ -38,21 +38,17 @@ export default function CryptoPayment() {
     try {
       if (purchaseType === 'tribute') {
         // עדכון קיר הלבבות - תיקון שם הטבלה והוספת מדינה לסנכרון דגלים
-        const { data, error } = await supabase.from('heart_wall').insert([{ 
+        await supabase.from('heart_wall').insert([{ 
           name: sovName, location: sovMsg || "HEART WALL", country_code: sessionStorage.getItem('imp_country') || 'un'
-        }]).select();
-
-        if (data && data[0]) sessionStorage.setItem('imp_last_id', data[0].id.toString());
+        }]);
       } else {
         // עדכון הקיסר ושמירת המחיר האמיתי ב-price_paid שראינו ב-Supabase
-        const { data, error } = await supabase.from('sovereigns').insert([{ 
+        await supabase.from('sovereigns').insert([{ 
           name: sovName, 
           price_paid: dynamicPrice, 
           image_url: sovImg,
           subtitle: sovMsg
-        }]).select();
-
-        if (data && data[0]) sessionStorage.setItem('imp_last_id', data[0].id.toString());
+        }]);
       }
       
       // העברה מיידית לדף ההיסטוריה עם חגיגת ניצחון
