@@ -84,7 +84,6 @@ const currentPrice = useMemo(() => {
 
 const imperialGold = `linear-gradient(110deg, #2a1a05 0%, #7a5210 25%, #b38f4a 45%, #e6c68b 50%, #b38f4a 55%, #7a5210 75%, #2a1a05 100%)`;
 
-// הוצאתי את הפונקציות החוצה כדי שה-Realtime יוכל לגשת אליהן תמיד
 const fetchSovereignWall = async () => {
   const { data } = await supabase.from('sovereigns').select('name, image_url, subtitle').order('id', { ascending: false }).limit(20);
   if (data) setAllSovereigns(data);
@@ -129,24 +128,29 @@ useEffect(() => {
 
   channel = supabase.channel('home-live-sync')
     .on('postgres_changes', { event: '*', table: 'sovereigns' }, async (payload) => {
-      // עדכון מחיר מיידי ע"י שליפת כמות עדכנית
+      // 1. עדכון כמות קונים מיידי מה-DB כדי לסנכרן מחיר בכל הדפים
       const { count } = await supabase.from('sovereigns').select('*', { count: 'exact', head: true });
       if (count !== null) setBuyers(count);
 
-      // שליפת הריבון החדש במלואו כדי למנוע היעלמות תמונה (הכתר שציינת)
-      const { data } = await supabase.from('sovereigns').select('*').order('id', { ascending: false }).limit(1);
-      if (data && data.length > 0) {
-          setCurrentSovereign(data[0]);
-          fetchSovereignWall();
-          setIsCoronating(true);
-          setTimeout(() => setIsCoronating(false), 5000);
+      // 2. עדכון הריבון החדש והפעלת הכתר
+      if (payload.new && payload.new.image_url) {
+          setCurrentSovereign(payload.new);
+      } else {
+          const { data } = await supabase.from('sovereigns').select('name, image_url, subtitle').order('id', { ascending: false }).limit(1);
+          if (data && data[0]) setCurrentSovereign(data[0]);
       }
+      
+      await fetchSovereignWall();
+      setIsCoronating(true);
+      setTimeout(() => setIsCoronating(false), 5000);
     })
     .on('postgres_changes', { event: 'INSERT', table: 'likes' }, () => {
-      setLikes(prev => prev + 1);
+      supabase.from('likes').select('*', { count: 'exact', head: true }).then(({ count }) => {
+        if (count !== null) setLikes(LIKES_BASE + count);
+      });
     })
     .on('postgres_changes', { event: 'INSERT', table: 'heart_wall' }, () => {
-      fetchHeartWall(); // עכשיו זה יתעדכן אונליין בלי ריפרש
+      fetchHeartWall();
     })
     .subscribe();
 
@@ -228,7 +232,6 @@ return (
   <main className={`h-screen w-full bg-black text-white flex flex-col items-center justify-start overflow-hidden font-serif relative select-none caret-transparent outline-none transition-transform duration-100 ${isShaking ? 'animate-screen-shake' : ''}`}>
     <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[100]" style={{ mixBlendMode: 'screen' }} />
     
-    {/* 1. DESKTOP VERSION */}
     <div className="hidden md:block w-full h-full relative">
         <div className="absolute inset-0 z-0 pointer-events-none" style={{ backgroundImage: "url('/bg.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.4) contrast(110%)' }}></div>
         <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
@@ -380,17 +383,23 @@ return (
           </div>
         </div>
 
-        <div className="absolute bottom-4 left-10 flex items-center gap-6 z-20">
-           <button onClick={() => router.push('/share')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
-           <button onClick={() => router.push('/live')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
-           <button onClick={() => router.push('/history')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
+        <div className="absolute bottom-10 left-10 flex flex-col gap-3 z-20">
+           <div className="flex items-center gap-6">
+              <button onClick={() => router.push('/share')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Share</button>
+              <button onClick={() => router.push('/live')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">Live Stream</button>
+              <button onClick={() => router.push('/history')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a]/50 hover:text-white transition-all font-bold">History</button>
+           </div>
+           <div className="flex items-center gap-4">
+              <button onClick={() => router.push('/terms')} className="text-[7px] tracking-[0.4em] uppercase text-white/30 hover:text-white transition-all">Terms</button>
+              <button onClick={() => router.push('/privacy')} className="text-[7px] tracking-[0.4em] uppercase text-white/30 hover:text-white transition-all">Privacy</button>
+              <button onClick={() => router.push('/accessibility')} className="text-[7px] tracking-[0.4em] uppercase text-white/30 hover:text-white transition-all">Accessibility</button>
+           </div>
         </div>
         <div className="absolute bottom-4 right-10 flex items-center z-20">
            <button onClick={() => router.push('/broadcast')} className="text-[9px] tracking-[0.5em] uppercase text-[#b38f4a] hover:text-white transition-all font-black">Imperial Live</button>
         </div>
     </div>
 
-    {/* 2. MOBILE VERSION */}
     <div className="block md:hidden w-full h-full relative overflow-hidden bg-black text-left font-serif">
         <div className="fixed top-0 left-0 right-0 z-[1100] bg-black/80 backdrop-blur-xl border-b border-[#b38f4a]/10 px-4 py-4 flex justify-between items-center text-left">
             <div className="flex flex-col text-left">
